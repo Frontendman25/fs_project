@@ -1,0 +1,130 @@
+{
+  "auth": {
+    "login": {
+      "title": "Logowanie",
+      "description": "Wprowadź dane logowania, aby uzyskać dostęp do konta",
+      "success": {
+        "title": "Sukces",
+        "description": "Zostałeś pomyślnie zalogowany."
+      },
+      "error": {
+        "title": "Błąd",
+        "description": "Logowanie nie powiodło się. Spróbuj ponownie."
+      },
+      "validation": {
+        "username": {
+          "required": "Nazwa użytkownika jest wymagana"
+        },
+        "password": {
+          "required": "Hasło jest wymagane"
+        }
+      },
+      "fields": {
+        "username": "Nazwa użytkownika",
+        "usernameLabel": "Nazwa użytkownika",
+        "usernamePlaceholder": "Wprowadź nazwę użytkownika",
+        "password": "Hasło",
+        "passwordLabel": "Hasło",
+        "passwordPlaceholder": "Wprowadź hasło"
+      },
+      "buttons": {
+        "submit": "Zaloguj się",
+        "switchToRegister": "Nie masz konta? Zarejestruj się"
+      }
+    },
+    "register": {
+      "title": "Utwórz konto",
+      "success": {
+        "title": "Sukces",
+        "description": "Konto zostało utworzone pomyślnie! Zaloguj się."
+      },
+      "error": {
+        "title": "Błąd",
+        "description": "Rejestracja nie powiodła się",
+        "validation": {
+          "name": {
+            "min": "Imię i nazwisko musi mieć co najmniej 2 znaki"
+          },
+          "email": "Wprowadź poprawny adres email",
+          "password": {
+            "min": "Hasło musi mieć co najmniej {length} znaków",
+            "match": "Hasła muszą być takie same"
+          }
+        }
+      },
+      "fields": {
+        "name": "Imię i nazwisko",
+        "namePlaceholder": "Wprowadź imię i nazwisko",
+        "email": "Email",
+        "emailPlaceholder": "Wprowadź adres email",
+        "password": "Hasło",
+        "passwordPlaceholder": "Utwórz hasło",
+        "confirmPassword": "Potwierdź hasło",
+        "confirmPasswordPlaceholder": "Wprowadź hasło ponownie"
+      },
+      "buttons": {
+        "submit": "Utwórz konto",
+        "submitting": "Tworzenie konta...",
+        "switchToLogin": "Masz już konto? Zaloguj się"
+      }
+    }
+  },
+  "common": {
+    "language": "Język",
+    "theme": {
+      "light": "Jasny",
+      "dark": "Ciemny",
+      "system": "Systemowy"
+    }
+  },
+  "Index": {
+    "title": "Platforma udostępniania plików",
+    "description": "Udostępniaj pliki bezpiecznie i łatwo"
+  },
+  "dashboard": {
+    "title": "Witaj, {name}!",
+    "user": "Użytkownik",
+    "logout": "Wyloguj",
+    "loggedInMessage": "Jesteś pomyślnie zalogowany do systemu zarządzania plikami.",
+    "testSuccessToast": "Przetestuj powiadomienie o sukcesie",
+    "toast": {
+      "logoutSuccess": "Pomyślnie wylogowano",
+      "logoutError": "Wylogowanie nie powiodło się",
+      "saveSuccess": "Dane zostały zapisane pomyślnie"
+    }
+  },
+  "posts": {
+    "title": "Posty",
+    "createPost": "Utwórz post",
+    "loading": "Ładowanie postów...",
+    "noPosts": "Brak postów",
+    "error": {
+      "loadFailed": "Nie udało się załadować postów",
+      "createFailed": "Nie udało się utworzyć postu",
+      "updateFailed": "Nie udało się zaktualizować postu",
+      "deleteFailed": "Nie udało się usunąć postu",
+      "validation": {
+        "emptyContent": "Treść postu nie może być pusta",
+        "notLoggedIn": "Musisz być zalogowany, aby utworzyć post"
+      }
+    },
+    "success": {
+      "created": "Post został utworzony pomyślnie",
+      "updated": "Post został zaktualizowany pomyślnie",
+      "deleted": "Post został usunięty pomyślnie"
+    },
+    "delete": {
+      "title": "Usuń post",
+      "description": "Czy na pewno chcesz usunąć ten post? Ta czynność nie może zostać cofnięta.",
+      "cancel": "Anuluj",
+      "confirm": "Usuń",
+      "deleting": "Usuwanie..."
+    },
+    "edit": {
+      "save": "Zapisz",
+      "cancel": "Anuluj",
+      "placeholder": "Co myślisz?",
+      "creating": "Tworzenie..."
+    }
+  }
+}

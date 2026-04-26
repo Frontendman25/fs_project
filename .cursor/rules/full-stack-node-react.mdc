@@ -1,0 +1,32 @@
+---
+alwaysApply: true
+---
+
+Folder & layer structure:
+- Project is organized by architectural layers, not by feature folders.
+- Clean Architecture layers are required:
+  - domain
+  - application
+  - infrastructure
+  - presentation
+- Domain logic must never depend on outer layers.
+
+Domain organization:
+- Domain folders represent business concepts (e.g. user, order).
+- Domain contains entities and repository interfaces only.
+
+File naming conventions:
+- camelCase is used inside code (variables, functions, methods).
+- Filenames do NOT use camelCase.
+- Filenames use dot-notation to express responsibility:
+  - *.entity.ts
+  - *.service.ts
+  - *.repository.ts
+  - *.controller.ts
+  - *.schema.ts
+- Folder expresses architectural layer and domain.
+- Filename expresses role within that layer.
+
+Important:
+- Do NOT collapse multiple layers into a single folder.
+- Examples of filenames do NOT imply a flat folder structure.

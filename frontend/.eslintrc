@@ -1,0 +1,26 @@
+{
+    "env": {
+      "node": true,
+      "es2021": true
+    },
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "ecmaVersion": 12,
+      "sourceType": "module"
+    },
+    "extends": [
+      "plugin:@typescript-eslint/recommended",
+      "plugin:prettier/recommended"
+    ],
+    "plugins": ["@typescript-eslint", "prettier"],
+    "rules": {
+      "semi": ["error", "never"], // Вимкнення крапок з комою
+      "comma-dangle": ["error", "never"], // Вимкнення завершальних ком
+      "@typescript-eslint/semi": ["error", "never"], // Вимкнення крапок з комою для TypeScript
+      "@typescript-eslint/comma-dangle": ["error", "never"], // Вимкнення завершальних ком для TypeScript
+      "prettier/prettier": ["error", {
+        "semi": false, // Prettier: без крапок з комою
+        "trailingComma": "none" // Prettier: без завершальних ком
+      }]
+    }
+  }

@@ -1,0 +1,200 @@
+openapi: 3.0.3
+info:
+  title: FS Project API
+  description: |
+    REST API for file uploads, authentication, user profiles, posts, and real-time chat.
+    This specification is a **minimal, living document**—extend it as you add or change routes.
+  version: 1.0.0
+  contact:
+    name: API support
+    url: https://github.com/your-org/fs-project
+
+servers:
+  - url: http://localhost:3100
+    description: Local development
+  - url: /
+    description: Same-origin (relative to current host)
+
+tags:
+  - name: Health
+  - name: Auth
+  - name: API
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Liveness and database health
+      operationId: getHealth
+      responses:
+        '200':
+          description: Server is up; database reported healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Service unavailable (e.g. database unhealthy)
+
+  /:
+    get:
+      tags: [API]
+      summary: API index
+      description: Lists top-level route prefixes (human-friendly discovery)
+      operationId: getIndex
+      responses:
+        '200':
+          description: Index payload
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterBody'
+      responses:
+        '201':
+          description: User created
+        '400':
+          description: Validation error
+        '409':
+          description: User already exists
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login
+      description: |
+        Returns an access token in JSON and may set an HttpOnly `refreshToken` cookie.
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginBody'
+      responses:
+        '200':
+          description: Login successful
+        '401':
+          description: Invalid credentials
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      operationId: refreshToken
+      description: Expects `refreshToken` in cookies (HttpOnly)
+      responses:
+        '200':
+          description: New access token issued
+        '401':
+          description: Invalid or missing refresh token
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout
+      operationId: logout
+      responses:
+        '200':
+          description: Logout successful
+
+  /api/posts:
+    get:
+      tags: [API]
+      summary: List posts (cursor pagination)
+      description: Public read; see backend route implementation for exact query parameters.
+      operationId: listPosts
+      parameters:
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated posts
+
+  /api/chat/rooms:
+    get:
+      tags: [API]
+      summary: List chat rooms (protected)
+      description: Requires `Authorization: Bearer <token>`
+      security:
+        - bearerAuth: []
+      operationId: listChatRooms
+      responses:
+        '200':
+          description: List of rooms
+        '401':
+          description: Unauthorized
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        database:
+          type: object
+          additionalProperties: true
+        environment:
+          type: string
+
+    RegisterBody:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          minLength: 3
+        password:
+          type: string
+          minLength: 6
+        email:
+          type: string
+          format: email
+
+    LoginBody:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          format: password

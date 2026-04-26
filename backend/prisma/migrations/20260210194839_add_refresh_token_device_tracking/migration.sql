@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "public"."refresh_tokens" ADD COLUMN     "deviceInfo" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "ipAddress" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "lastUsedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;

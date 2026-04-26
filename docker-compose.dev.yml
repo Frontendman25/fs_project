@@ -1,0 +1,72 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Development overrides
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# What this file adds / changes:
+#  - Builds images from the 'development' Dockerfile stage
+#  - Both PostgreSQL and MongoDB are started (no profiles)
+#  - DB ports are exposed on the host for local tooling (psql, Compass, etc.)
+#  - Backend and frontend source code is bind-mounted for hot-reload
+#  - NODE_ENV=development, LOG_LEVEL=debug
+#  - No resource limits (developer machine)
+#  - No restart policies
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ─── PostgreSQL — expose port for local tooling ────────────────────────────
+  postgres:
+    ports:
+      - "${POSTGRES_PORT:-5434}:5432"
+
+  # ─── MongoDB — expose port for Compass / mongosh ───────────────────────────
+  mongodb:
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+
+  # ─── Redis — expose port for redis-cli / RedisInsight ─────────────────────
+  redis:
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+
+  # ─── Backend ───────────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      target: development
+    command: ["sh", "./scripts/start.dev.sh"]
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+    volumes:
+      # Bind-mount only the source directories so that node_modules inside the
+      # container is NOT overwritten by the host's node_modules.
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
+      - ./backend/scripts:/app/scripts
+      - ./backend/tsconfig.json:/app/tsconfig.json
+      - ./backend/nodemon.json:/app/nodemon.json
+      # Named volume for uploaded files (persisted across container restarts).
+      - uploads_data:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ─── Frontend ──────────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      target: development
+    command: ["npm", "run", "dev"]
+    environment:
+      NODE_ENV: development
+    volumes:
+      # Bind-mount source; keep node_modules and .next inside the container.
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      # Config files — bind-mounted so changes take effect without a rebuild.
+      - ./frontend/next.config.ts:/app/next.config.ts

@@ -1,0 +1,41 @@
+# ── Environment files ────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+# Keep .env.example committed as documentation.
+!.env.example
+
+# ── Node ─────────────────────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── TypeScript ────────────────────────────────────────────────────────────────
+*.tsbuildinfo
+
+# ── Build outputs ─────────────────────────────────────────────────────────────
+dist/
+build/
+.next/
+out/
+
+# ── Test / coverage ───────────────────────────────────────────────────────────
+coverage/
+
+# ── Uploads (local storage) ───────────────────────────────────────────────────
+backend/uploads/
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Editor ────────────────────────────────────────────────────────────────────
+.idea/
+*.swp
+*.swo
+
+# ── Docker ────────────────────────────────────────────────────────────────────
+# Compose override files are local by convention.
+docker-compose.override.yml

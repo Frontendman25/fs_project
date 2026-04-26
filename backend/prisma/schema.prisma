@@ -1,0 +1,194 @@
+// This is your Prisma schema file for PostgreSQL
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRESQL_URL")
+}
+
+// User model - represents users in the system
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  password     String   // In production, this should be hashed
+  email        String?  @unique
+  avatarFileId String?  // Reference to avatar file
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relationship: One user can have many refresh tokens
+  refreshTokens RefreshToken[]
+  // Relationship: One user can have many posts
+  posts Post[]
+
+  @@map("users") // Map to 'users' table in database
+}
+
+// RefreshToken model - represents refresh tokens for authentication
+model RefreshToken {
+  id         String   @id @default(cuid())
+  token      String   @unique // The actual refresh token string
+  userId     String   // Foreign key to User
+  expiresAt  DateTime // When this token expires
+  isRevoked  Boolean  @default(false) // Whether this token has been revoked
+  deviceInfo String   @default("") // User-Agent or device description
+  ipAddress  String   @default("") // Client IP address
+  lastUsedAt DateTime @default(now()) // Last refresh usage
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relationship: Many refresh tokens belong to one user
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes for better query performance
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@index([isRevoked])
+  @@map("refresh_tokens") // Map to 'refresh_tokens' table in database
+}
+
+// File model - represents uploaded files in the system
+model File {
+  id               String   @id @default(cuid())
+  originalName     String   // Original filename when uploaded
+  filename         String   @unique // Stored filename (local or cloud)
+  mimeType         String   // MIME type of the file
+  size             Int      // Original file size in bytes
+  compressedSize   Int      // Compressed file size in bytes
+  path             String   // Storage path (local path or cloud URL)
+  uploadedBy       String?  // User ID who uploaded the file
+  isCompressed     Boolean  @default(false) // Whether the file is compressed
+  compressionRatio Float    @default(1.0) // Compression ratio (original/compressed)
+  checksum         String   // File checksum for integrity verification
+  storageType      String   @default("local") // "local" or "cloudinary"
+  cloudinaryId     String?  // Cloudinary public ID if stored in cloud
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Indexes for better query performance
+  @@index([originalName])
+  @@index([uploadedBy])
+  @@index([mimeType])
+  @@index([createdAt])
+  @@index([filename])
+  @@index([checksum])
+  @@index([storageType])
+  @@map("files") // Map to 'files' table in database
+}
+
+// Post model - represents posts in the system
+model Post {
+  id        String   @id @default(cuid())
+  userId    String   // Foreign key to User
+  content   String   // Post content
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationship: Many posts belong to one user
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes for better query performance
+  @@index([userId])
+  @@index([createdAt])
+  @@map("posts") // Map to 'posts' table in database
+}
+
+// ChatRoom model - represents chat rooms
+model ChatRoom {
+  id          String   @id @default(uuid())
+  name        String
+  type        String   // 'public' | 'private'
+  description String?
+  createdBy   String   // User ID
+  memberCount Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  messages ChatMessage[]
+  members  ChatMember[]
+  notifications ChatNotification[]
+
+  // Indexes for better query performance
+  @@index([type])
+  @@index([createdBy])
+  @@index([createdAt])
+  @@map("chat_rooms")
+}
+
+// ChatMessage model - represents messages in chat rooms
+model ChatMessage {
+  id             String   @id @default(uuid())
+  roomId         String
+  senderId       String
+  senderUsername String
+  content        String
+  messageType    String   @default("text") // 'text' | 'image' | 'file' | 'system'
+  metadata       Json?    // { fileName?, fileSize?, mimeType?, imageUrl? }
+  replyTo        String?  // Message ID being replied to
+  editedAt       DateTime?
+  deletedAt      DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relationships
+  room ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  // Indexes for better query performance
+  @@index([roomId])
+  @@index([senderId])
+  @@index([createdAt])
+  @@index([replyTo])
+  @@map("chat_messages")
+}
+
+// ChatMember model - represents members of chat rooms
+model ChatMember {
+  id          String    @id @default(uuid())
+  roomId      String
+  userId      String
+  username    String
+  role        String    @default("member") // 'admin' | 'moderator' | 'member'
+  joinedAt    DateTime  @default(now())
+  lastSeenAt  DateTime?
+  isOnline    Boolean   @default(false)
+  isTyping    Boolean   @default(false)
+  typingUntil DateTime?
+
+  // Relationships
+  room ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  // Unique constraint: one user can only be a member once per room
+  @@unique([roomId, userId])
+  @@index([roomId])
+  @@index([userId])
+  @@index([isOnline])
+  @@map("chat_members")
+}
+
+// ChatNotification model - represents notifications for users
+model ChatNotification {
+  id        String   @id @default(uuid())
+  userId    String
+  roomId    String
+  messageId String
+  type      String   // 'new_message' | 'mention' | 'room_invite'
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relationships
+  room ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  // Indexes for better query performance
+  @@index([userId])
+  @@index([roomId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("chat_notifications")
+}

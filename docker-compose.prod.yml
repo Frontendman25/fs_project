@@ -1,0 +1,109 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Production overrides
+#
+# Usage — PostgreSQL:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+#     --profile postgresql up -d
+#
+# Usage — MongoDB:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+#     --profile mongodb up -d
+#
+# What this file adds / changes:
+#  - Builds images from the 'production' Dockerfile stage
+#  - Only ONE database is started via --profile (postgresql | mongodb)
+#  - Resource limits (cpu + memory) for all services
+#  - Restart policy: on-failure:5 for all services
+#  - Backend depends on whichever DB was started (required: false handles
+#    the case where the other DB was not activated via its profile)
+#  - NODE_ENV=production, LOG_LEVEL=info
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ─── PostgreSQL — only started when --profile postgresql is passed ─────────
+  postgres:
+    profiles: [postgresql]
+    restart: on-failure:5
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+  # ─── MongoDB — only started when --profile mongodb is passed ──────────────
+  mongodb:
+    profiles: [mongodb]
+    restart: on-failure:5
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+  # ─── Redis — always started in production ─────────────────────────────────
+  redis:
+    restart: on-failure:5
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+
+  # ─── Backend ───────────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      target: production
+    command: ["sh", "./scripts/start.sh"]
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    restart: on-failure:5
+    # depends_on uses required: false so that the backend does not fail if
+    # the OTHER database (the one NOT activated via its profile) is absent.
+    # The activated DB (postgres OR mongodb) will be healthy before backend
+    # starts; the absent one is simply ignored.
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: false
+      mongodb:
+        condition: service_healthy
+        required: false
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+
+  # ─── Frontend ──────────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      target: production
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3100}
+    restart: on-failure:5
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
