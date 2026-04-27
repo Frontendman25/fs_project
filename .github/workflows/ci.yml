@@ -21,7 +21,7 @@ jobs:
       - name: Install commitlint
         run: npm install -g @commitlint/cli @commitlint/config-conventional
       - name: Validate commits
-        run: npx commitlint --from=HEAD~${{ github.event.pull_request.commits || 1 }} --to=HEAD --verbose
+        run: npx commitlint --from=HEAD~1 --verbose
 
   backend:
     name: Backend
@@ -32,6 +32,8 @@ jobs:
         working-directory: backend
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Use Node.js 22
         uses: actions/setup-node@v4
         with:
@@ -56,6 +58,8 @@ jobs:
         working-directory: frontend
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Use Node.js 22
         uses: actions/setup-node@v4
         with:
