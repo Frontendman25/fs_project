@@ -59,7 +59,7 @@ export class PostContainer {
         this.deletePostUseCase,
         this.getPostCountUseCase
       )
-      
+
       this.initialized = true
     }
   }
@@ -70,7 +70,9 @@ export class PostContainer {
    * @param databaseFactory - Database factory
    * @returns IPostRepository implementation
    */
-  private createPostRepository(databaseFactory: IDatabaseFactory): IPostRepository {
+  private createPostRepository(
+    databaseFactory: IDatabaseFactory
+  ): IPostRepository {
     // Use the database factory to get the appropriate repository
     // This follows Clean Architecture by letting the factory handle database-specific logic
     return databaseFactory.getPostRepository()

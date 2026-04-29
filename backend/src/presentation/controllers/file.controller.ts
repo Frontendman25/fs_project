@@ -18,10 +18,7 @@ export class FileController {
    * @param req - Express request object
    * @param res - Express response object
    */
-  async uploadFile(
-    req: Request,
-    res: Response
-  ): Promise<void> {
+  async uploadFile(req: Request, res: Response): Promise<void> {
     try {
       // Check if file was uploaded
       if (!req.file) {

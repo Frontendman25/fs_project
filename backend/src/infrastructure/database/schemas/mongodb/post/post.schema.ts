@@ -48,5 +48,3 @@ PostSchema.index({ content: 'text' })
  * Post Model - Mongoose model for posts
  */
 export const PostModel = mongoose.model<IPostDocument>('Post', PostSchema)
-
-

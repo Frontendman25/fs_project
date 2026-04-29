@@ -7,5 +7,3 @@
 export { PostgreSQLDatabaseFactory } from './postgresql-database.factory'
 export { MongoDBDatabaseFactory } from './mongodb-database.factory'
 export { DatabaseFactorySelector } from './database-factory.selector'
-
-

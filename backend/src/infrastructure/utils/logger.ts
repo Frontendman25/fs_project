@@ -85,4 +85,3 @@ export const appLogger: ILoggerService = createLogger('Application')
  * HTTP logger instance (ILoggerService interface)
  */
 export const httpLogger: ILoggerService = createLogger('HTTP')
-

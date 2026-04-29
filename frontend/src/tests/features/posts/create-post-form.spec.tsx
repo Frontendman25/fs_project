@@ -2,10 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import {
-  authenticatedUserState,
-  anonymousUserState
-} from '@/tests/fixtures'
+import { authenticatedUserState, anonymousUserState } from '@/tests/fixtures'
 import { renderWithProviders } from '@/tests/utils/render'
 import { CreatePostForm } from '@/features/posts/ui/CreatePostForm'
 import { POST_CONSTANTS, TEST_IDS } from '@/shared/constants'

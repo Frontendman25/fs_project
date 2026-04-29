@@ -8,7 +8,10 @@ import { PrismaClient } from '@prisma/client'
 import { v4 as uuidv4 } from 'uuid'
 
 import { ILoggerService } from '@/domain/services/logger.service'
-import { IChatRepository, PaginatedResult } from '@/domain/repositories/chat.repository'
+import {
+  IChatRepository,
+  PaginatedResult
+} from '@/domain/repositories/chat.repository'
 import {
   ChatRoom,
   ChatMessage,
@@ -24,24 +27,24 @@ import { ChatRoomNotFoundError } from '@/domain/errors/chat.errors'
 
 /**
  * PostgreSQL Chat Repository
- * 
+ *
  * Implements chat data persistence for PostgreSQL database using Prisma ORM.
- * 
+ *
  * Design Patterns:
  * - Repository Pattern: Abstracts data access logic
  * - Dependency Injection: Receives PrismaClient and ILoggerService via constructor
- * 
+ *
  * @example
  * ```typescript
  * const repository = new PostgreSQLChatRepository(prisma, logger)
- * 
+ *
  * // Create a room
  * const room = await repository.createRoom({
  *   name: 'General Chat',
  *   type: 'public',
  *   createdBy: 'user123'
  * })
- * 
+ *
  * // Find room by ID
  * const foundRoom = await repository.findRoomById(room.id)
  * ```
@@ -58,11 +61,11 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Creates a new chat room
-   * 
+   *
    * @param roomData - Data for creating the room
    * @returns Promise resolving to the created ChatRoom
    * @throws Error if creation fails
-   * 
+   *
    * @example
    * ```typescript
    * const room = await repository.createRoom({
@@ -115,10 +118,10 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Finds a chat room by its unique identifier
-   * 
+   *
    * @param roomId - UUID of the room to find
    * @returns Promise resolving to ChatRoom or null if not found
-   * 
+   *
    * @example
    * ```typescript
    * const room = await repository.findRoomById('550e8400-e29b-41d4-a716-446655440000')
@@ -158,10 +161,10 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Finds rooms matching the provided query criteria with pagination support
-   * 
+   *
    * @param query - Query parameters for filtering and pagination
    * @returns Promise resolving to array of ChatRoom objects
-   * 
+   *
    * @example
    * ```typescript
    * // Find public rooms
@@ -169,7 +172,7 @@ export class PostgreSQLChatRepository implements IChatRepository {
    *   type: 'public',
    *   limit: 10
    * })
-   * 
+   *
    * // Find rooms for specific user with cursor pagination
    * const userRooms = await repository.findRoomsByQuery({
    *   userId: 'user-123',
@@ -178,7 +181,9 @@ export class PostgreSQLChatRepository implements IChatRepository {
    * })
    * ```
    */
-  async findRoomsByQuery(query: ChatRoomQuery): Promise<PaginatedResult<ChatRoom>> {
+  async findRoomsByQuery(
+    query: ChatRoomQuery
+  ): Promise<PaginatedResult<ChatRoom>> {
     this.logger.debug({ query }, 'Finding rooms by query')
 
     try {
@@ -233,9 +238,10 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
       const hasMore = rooms.length > limit
       const resultItems = hasMore ? rooms.slice(0, limit) : rooms
-      const nextCursor = hasMore && resultItems.length > 0
-        ? resultItems[resultItems.length - 1].id
-        : undefined
+      const nextCursor =
+        hasMore && resultItems.length > 0
+          ? resultItems[resultItems.length - 1].id
+          : undefined
 
       return {
         items: resultItems.map((room) => ({
@@ -260,12 +266,12 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Updates an existing chat room with partial data
-   * 
+   *
    * @param roomId - UUID of the room to update
    * @param updates - Partial ChatRoom data to update
    * @returns Promise resolving to updated ChatRoom or null if not found
    * @throws ChatRoomNotFoundError if room doesn't exist
-   * 
+   *
    * @example
    * ```typescript
    * const updated = await repository.updateRoom('room-id', {
@@ -323,10 +329,10 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Deletes a chat room and all associated data
-   * 
+   *
    * @param roomId - UUID of the room to delete
    * @returns Promise resolving to true if deleted, false otherwise
-   * 
+   *
    * @example
    * ```typescript
    * const deleted = await repository.deleteRoom('room-id')
@@ -357,11 +363,11 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Creates a new chat message in a room
-   * 
+   *
    * @param messageData - Data for creating the message
    * @returns Promise resolving to the created ChatMessage
    * @throws Error if creation fails
-   * 
+   *
    * @example
    * ```typescript
    * const message = await repository.createMessage({
@@ -387,7 +393,9 @@ export class PostgreSQLChatRepository implements IChatRepository {
           senderUsername: messageData.senderUsername,
           content: messageData.content,
           messageType: messageData.messageType || 'text',
-          metadata: messageData.metadata ? (messageData.metadata as any) : undefined,
+          metadata: messageData.metadata
+            ? (messageData.metadata as any)
+            : undefined,
           replyTo: messageData.replyTo || undefined
         }
       })
@@ -403,7 +411,7 @@ export class PostgreSQLChatRepository implements IChatRepository {
           | 'image'
           | 'file'
           | 'system',
-        metadata: message.metadata as ChatMessage['metadata'] || undefined,
+        metadata: (message.metadata as ChatMessage['metadata']) || undefined,
         replyTo: message.replyTo || undefined,
         editedAt: message.editedAt || undefined,
         deletedAt: message.deletedAt || undefined,
@@ -421,10 +429,10 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Finds a message by its unique identifier
-   * 
+   *
    * @param messageId - UUID of the message to find
    * @returns Promise resolving to ChatMessage or null if not found
-   * 
+   *
    * @example
    * ```typescript
    * const message = await repository.findMessageById('msg-123')
@@ -451,8 +459,12 @@ export class PostgreSQLChatRepository implements IChatRepository {
         senderId: message.senderId,
         senderUsername: message.senderUsername,
         content: message.content,
-        messageType: message.messageType as 'text' | 'image' | 'file' | 'system',
-        metadata: message.metadata as ChatMessage['metadata'] || undefined,
+        messageType: message.messageType as
+          | 'text'
+          | 'image'
+          | 'file'
+          | 'system',
+        metadata: (message.metadata as ChatMessage['metadata']) || undefined,
         replyTo: message.replyTo || undefined,
         editedAt: message.editedAt || undefined,
         deletedAt: message.deletedAt || undefined,
@@ -467,10 +479,10 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Finds messages matching the provided query criteria
-   * 
+   *
    * @param query - Query parameters for filtering messages
    * @returns Promise resolving to array of ChatMessage objects
-   * 
+   *
    * @example
    * ```typescript
    * // Get recent messages from a room
@@ -478,7 +490,7 @@ export class PostgreSQLChatRepository implements IChatRepository {
    *   roomId: 'room-123',
    *   limit: 50
    * })
-   * 
+   *
    * // Get messages with cursor pagination
    * const nextMessages = await repository.findMessagesByQuery({
    *   roomId: 'room-123',
@@ -487,7 +499,9 @@ export class PostgreSQLChatRepository implements IChatRepository {
    * })
    * ```
    */
-  async findMessagesByQuery(query: ChatMessageQuery): Promise<PaginatedResult<ChatMessage>> {
+  async findMessagesByQuery(
+    query: ChatMessageQuery
+  ): Promise<PaginatedResult<ChatMessage>> {
     this.logger.debug({ query }, 'Finding messages by query')
 
     try {
@@ -542,9 +556,10 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
       const hasMore = messages.length > limit
       const resultItems = hasMore ? messages.slice(0, limit) : messages
-      const nextCursor = hasMore && resultItems.length > 0
-        ? resultItems[resultItems.length - 1].id
-        : undefined
+      const nextCursor =
+        hasMore && resultItems.length > 0
+          ? resultItems[resultItems.length - 1].id
+          : undefined
 
       return {
         items: resultItems.map((message) => ({
@@ -553,8 +568,12 @@ export class PostgreSQLChatRepository implements IChatRepository {
           senderId: message.senderId,
           senderUsername: message.senderUsername,
           content: message.content,
-          messageType: message.messageType as 'text' | 'image' | 'file' | 'system',
-          metadata: message.metadata as ChatMessage['metadata'] || undefined,
+          messageType: message.messageType as
+            | 'text'
+            | 'image'
+            | 'file'
+            | 'system',
+          metadata: (message.metadata as ChatMessage['metadata']) || undefined,
           replyTo: message.replyTo || undefined,
           editedAt: message.editedAt || undefined,
           deletedAt: message.deletedAt || undefined,
@@ -572,11 +591,11 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Updates an existing chat message
-   * 
+   *
    * @param messageId - UUID of the message to update
    * @param updates - Partial ChatMessage data to update
    * @returns Promise resolving to updated ChatMessage or null if not found
-   * 
+   *
    * @example
    * ```typescript
    * const updated = await repository.updateMessage('msg-123', {
@@ -613,7 +632,8 @@ export class PostgreSQLChatRepository implements IChatRepository {
           | 'image'
           | 'file'
           | 'system',
-        metadata: updatedMessage.metadata as ChatMessage['metadata'] || undefined,
+        metadata:
+          (updatedMessage.metadata as ChatMessage['metadata']) || undefined,
         replyTo: updatedMessage.replyTo || undefined,
         editedAt: updatedMessage.editedAt || undefined,
         deletedAt: updatedMessage.deletedAt || undefined,
@@ -632,10 +652,10 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Deletes a chat message (soft delete)
-   * 
+   *
    * @param messageId - UUID of the message to delete
    * @returns Promise resolving to true if deleted, false otherwise
-   * 
+   *
    * @example
    * ```typescript
    * const deleted = await repository.deleteMessage('msg-123')
@@ -668,11 +688,11 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Adds a member to a chat room
-   * 
+   *
    * @param memberData - Data for adding the member
    * @returns Promise resolving to the created ChatMember
    * @throws Error if addition fails
-   * 
+   *
    * @example
    * ```typescript
    * const member = await repository.addMember({
@@ -735,11 +755,11 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Finds a specific member in a room
-   * 
+   *
    * @param roomId - UUID of the room
    * @param userId - UUID of the user
    * @returns Promise resolving to ChatMember or null if not found
-   * 
+   *
    * @example
    * ```typescript
    * const member = await repository.findMember('room-123', 'user-456')
@@ -785,10 +805,10 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Finds all members of a specific room
-   * 
+   *
    * @param roomId - UUID of the room
    * @returns Promise resolving to array of ChatMember objects
-   * 
+   *
    * @example
    * ```typescript
    * const members = await repository.findMembersByRoom('room-123')
@@ -840,34 +860,37 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
       const hasMore = members.length > limit
       const resultItems = hasMore ? members.slice(0, limit) : members
-      const nextCursor = hasMore && resultItems.length > 0
-        ? resultItems[resultItems.length - 1].id
-        : undefined
+      const nextCursor =
+        hasMore && resultItems.length > 0
+          ? resultItems[resultItems.length - 1].id
+          : undefined
 
       return {
-        items: resultItems.map((member: {
-          id: string,
-          roomId: string,
-          userId: string,
-          username: string,
-          role: string,
-          joinedAt: Date,
-          lastSeenAt: Date | null,
-          isOnline: boolean,
-          isTyping: boolean,
-          typingUntil: Date | null
-        }) => ({
-          id: member.id,
-          roomId: member.roomId,
-          userId: member.userId,
-          username: member.username,
-          role: member.role as 'admin' | 'moderator' | 'member',
-          joinedAt: member.joinedAt,
-          lastSeenAt: member.lastSeenAt || undefined,
-          isOnline: member.isOnline,
-          isTyping: member.isTyping,
-          typingUntil: member.typingUntil || undefined
-        })),
+        items: resultItems.map(
+          (member: {
+            id: string
+            roomId: string
+            userId: string
+            username: string
+            role: string
+            joinedAt: Date
+            lastSeenAt: Date | null
+            isOnline: boolean
+            isTyping: boolean
+            typingUntil: Date | null
+          }) => ({
+            id: member.id,
+            roomId: member.roomId,
+            userId: member.userId,
+            username: member.username,
+            role: member.role as 'admin' | 'moderator' | 'member',
+            joinedAt: member.joinedAt,
+            lastSeenAt: member.lastSeenAt || undefined,
+            isOnline: member.isOnline,
+            isTyping: member.isTyping,
+            typingUntil: member.typingUntil || undefined
+          })
+        ),
         hasMore,
         nextCursor
       }
@@ -879,12 +902,12 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Updates a room member's data
-   * 
+   *
    * @param roomId - UUID of the room
    * @param userId - UUID of the user
    * @param updates - Partial ChatMember data to update
    * @returns Promise resolving to updated ChatMember or null if not found
-   * 
+   *
    * @example
    * ```typescript
    * const updated = await repository.updateMember('room-123', 'user-456', {
@@ -945,11 +968,11 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Removes a member from a room
-   * 
+   *
    * @param roomId - UUID of the room
    * @param userId - UUID of the user
    * @returns Promise resolving to true if removed, false otherwise
-   * 
+   *
    * @example
    * ```typescript
    * const removed = await repository.removeMember('room-123', 'user-456')
@@ -992,10 +1015,10 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Creates a new notification for a user
-   * 
+   *
    * @param notification - Notification data without id and createdAt
    * @returns Promise resolving to the created ChatNotification
-   * 
+   *
    * @example
    * ```typescript
    * const notification = await repository.createNotification({
@@ -1040,18 +1063,21 @@ export class PostgreSQLChatRepository implements IChatRepository {
       )
       return result
     } catch (error) {
-      this.logger.error({ error, notification }, 'Failed to create notification')
+      this.logger.error(
+        { error, notification },
+        'Failed to create notification'
+      )
       throw error
     }
   }
 
   /**
    * Finds all notifications for a specific user
-   * 
+   *
    * @param userId - UUID of the user
    * @param limit - Maximum number of notifications to return (default: 50)
    * @returns Promise resolving to array of ChatNotification objects
-   * 
+   *
    * @example
    * ```typescript
    * const notifications = await repository.findNotificationsByUser('user-123', 20)
@@ -1074,10 +1100,11 @@ export class PostgreSQLChatRepository implements IChatRepository {
       } = { userId }
 
       if (cursor) {
-        const cursorNotification = await this.prisma.chatNotification.findUnique({
-          where: { id: cursor },
-          select: { createdAt: true }
-        })
+        const cursorNotification =
+          await this.prisma.chatNotification.findUnique({
+            where: { id: cursor },
+            select: { createdAt: true }
+          })
         if (cursorNotification) {
           where.createdAt = { lt: cursorNotification.createdAt }
         }
@@ -1099,10 +1126,13 @@ export class PostgreSQLChatRepository implements IChatRepository {
       })
 
       const hasMore = notifications.length > limit
-      const resultItems = hasMore ? notifications.slice(0, limit) : notifications
-      const nextCursor = hasMore && resultItems.length > 0
-        ? resultItems[resultItems.length - 1].id
-        : undefined
+      const resultItems = hasMore
+        ? notifications.slice(0, limit)
+        : notifications
+      const nextCursor =
+        hasMore && resultItems.length > 0
+          ? resultItems[resultItems.length - 1].id
+          : undefined
 
       return {
         items: resultItems.map((notif) => ({
@@ -1125,10 +1155,10 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Marks a specific notification as read
-   * 
+   *
    * @param notificationId - UUID of the notification
    * @returns Promise resolving to true if marked, false otherwise
-   * 
+   *
    * @example
    * ```typescript
    * await repository.markNotificationAsRead('notif-123')
@@ -1163,16 +1193,16 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Marks all notifications as read for a user, optionally filtered by room
-   * 
+   *
    * @param userId - UUID of the user
    * @param roomId - Optional UUID of the room to filter by
    * @returns Promise resolving to true if successful, false otherwise
-   * 
+   *
    * @example
    * ```typescript
    * // Mark all notifications as read
    * await repository.markAllNotificationsAsRead('user-123')
-   * 
+   *
    * // Mark all notifications for a specific room as read
    * await repository.markAllNotificationsAsRead('user-123', 'room-456')
    * ```
@@ -1198,10 +1228,7 @@ export class PostgreSQLChatRepository implements IChatRepository {
         data: { isRead: true }
       })
 
-      this.logger.info(
-        { userId, roomId },
-        'All notifications marked as read'
-      )
+      this.logger.info({ userId, roomId }, 'All notifications marked as read')
       return true
     } catch (error) {
       this.logger.error(
@@ -1214,10 +1241,10 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Gets the total number of members in a room
-   * 
+   *
    * @param roomId - UUID of the room
    * @returns Promise resolving to the member count
-   * 
+   *
    * @example
    * ```typescript
    * const count = await repository.getRoomMemberCount('room-123')
@@ -1241,11 +1268,11 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Checks if a user is a member of a specific room
-   * 
+   *
    * @param roomId - UUID of the room
    * @param userId - UUID of the user
    * @returns Promise resolving to true if user is a member, false otherwise
-   * 
+   *
    * @example
    * ```typescript
    * const isMember = await repository.isUserMemberOfRoom('room-123', 'user-456')
@@ -1279,10 +1306,10 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
   /**
    * Gets all rooms that a user is a member of
-   * 
+   *
    * @param userId - UUID of the user
    * @returns Promise resolving to array of ChatRoom objects
-   * 
+   *
    * @example
    * ```typescript
    * const userRooms = await repository.getUserRooms('user-123')
@@ -1342,9 +1369,10 @@ export class PostgreSQLChatRepository implements IChatRepository {
 
       const hasMore = members.length > limit
       const resultMembers = hasMore ? members.slice(0, limit) : members
-      const nextCursor = hasMore && resultMembers.length > 0
-        ? resultMembers[resultMembers.length - 1].id
-        : undefined
+      const nextCursor =
+        hasMore && resultMembers.length > 0
+          ? resultMembers[resultMembers.length - 1].id
+          : undefined
 
       return {
         items: resultMembers.map((member) => ({

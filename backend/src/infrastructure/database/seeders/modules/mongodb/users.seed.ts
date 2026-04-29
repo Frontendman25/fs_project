@@ -3,7 +3,11 @@ import bcrypt from 'bcrypt'
 import { UserModel } from '@/infrastructure/database/schemas/mongodb/user'
 
 import { ensureUserIdentities } from '../../identity/identity.bootstrap'
-import type { SeedContext, SeedModule, SeedModuleResult } from '../../seed.types'
+import type {
+  SeedContext,
+  SeedModule,
+  SeedModuleResult
+} from '../../seed.types'
 
 export const mongodbUsersSeed: SeedModule = {
   name: 'users',

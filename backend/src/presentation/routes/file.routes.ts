@@ -1,6 +1,9 @@
 import { Router } from 'express'
 
-import { FileController, uploadMiddleware } from '../controllers/file.controller'
+import {
+  FileController,
+  uploadMiddleware
+} from '../controllers/file.controller'
 
 /**
  * File Routes - Defines HTTP endpoints for file operations

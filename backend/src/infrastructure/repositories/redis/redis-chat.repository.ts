@@ -37,7 +37,10 @@
 import { createClient, type RedisClientType } from 'redis'
 import { v4 as uuidv4 } from 'uuid'
 
-import { IChatRepository, PaginatedResult } from '@/domain/repositories/chat.repository'
+import {
+  IChatRepository,
+  PaginatedResult
+} from '@/domain/repositories/chat.repository'
 import {
   ChatRoom,
   ChatMessage,
@@ -297,7 +300,9 @@ export class RedisChatRepository implements IChatRepository {
    * })
    * ```
    */
-  async findRoomsByQuery(query: ChatRoomQuery): Promise<PaginatedResult<ChatRoom>> {
+  async findRoomsByQuery(
+    query: ChatRoomQuery
+  ): Promise<PaginatedResult<ChatRoom>> {
     await this.ensureConnected()
 
     const limit = query.limit || 20
@@ -328,7 +333,7 @@ export class RedisChatRepository implements IChatRepository {
 
     // Apply cursor if specified
     if (query.cursor) {
-      const cursorIndex = filteredRooms.findIndex(r => r.id === query.cursor)
+      const cursorIndex = filteredRooms.findIndex((r) => r.id === query.cursor)
       if (cursorIndex >= 0) {
         filteredRooms = filteredRooms.slice(cursorIndex + 1)
       }
@@ -336,9 +341,10 @@ export class RedisChatRepository implements IChatRepository {
 
     const hasMore = filteredRooms.length > limit
     const resultItems = hasMore ? filteredRooms.slice(0, limit) : filteredRooms
-    const nextCursor = hasMore && resultItems.length > 0
-      ? resultItems[resultItems.length - 1].id
-      : undefined
+    const nextCursor =
+      hasMore && resultItems.length > 0
+        ? resultItems[resultItems.length - 1].id
+        : undefined
 
     return {
       items: resultItems,
@@ -471,7 +477,9 @@ export class RedisChatRepository implements IChatRepository {
     }
   }
 
-  async findMessagesByQuery(query: ChatMessageQuery): Promise<PaginatedResult<ChatMessage>> {
+  async findMessagesByQuery(
+    query: ChatMessageQuery
+  ): Promise<PaginatedResult<ChatMessage>> {
     await this.ensureConnected()
 
     const limit = query.limit || 50
@@ -496,17 +504,20 @@ export class RedisChatRepository implements IChatRepository {
     )
 
     if (query.cursor) {
-      const cursorIndex = sortedMessages.findIndex(m => m.id === query.cursor)
+      const cursorIndex = sortedMessages.findIndex((m) => m.id === query.cursor)
       if (cursorIndex >= 0) {
         sortedMessages = sortedMessages.slice(cursorIndex + 1)
       }
     }
 
     const hasMore = sortedMessages.length > limit
-    const resultItems = hasMore ? sortedMessages.slice(0, limit) : sortedMessages
-    const nextCursor = hasMore && resultItems.length > 0
-      ? resultItems[resultItems.length - 1].id
-      : undefined
+    const resultItems = hasMore
+      ? sortedMessages.slice(0, limit)
+      : sortedMessages
+    const nextCursor =
+      hasMore && resultItems.length > 0
+        ? resultItems[resultItems.length - 1].id
+        : undefined
 
     return {
       items: resultItems,
@@ -625,7 +636,7 @@ export class RedisChatRepository implements IChatRepository {
     )
 
     if (cursor) {
-      const cursorIndex = sortedMembers.findIndex(m => m.id === cursor)
+      const cursorIndex = sortedMembers.findIndex((m) => m.id === cursor)
       if (cursorIndex >= 0) {
         sortedMembers = sortedMembers.slice(cursorIndex + 1)
       }
@@ -633,9 +644,10 @@ export class RedisChatRepository implements IChatRepository {
 
     const hasMore = sortedMembers.length > limit
     const resultItems = hasMore ? sortedMembers.slice(0, limit) : sortedMembers
-    const nextCursor = hasMore && resultItems.length > 0
-      ? resultItems[resultItems.length - 1].id
-      : undefined
+    const nextCursor =
+      hasMore && resultItems.length > 0
+        ? resultItems[resultItems.length - 1].id
+        : undefined
 
     return {
       items: resultItems,
@@ -741,17 +753,20 @@ export class RedisChatRepository implements IChatRepository {
     )
 
     if (cursor) {
-      const cursorIndex = sortedNotifications.findIndex(n => n.id === cursor)
+      const cursorIndex = sortedNotifications.findIndex((n) => n.id === cursor)
       if (cursorIndex >= 0) {
         sortedNotifications = sortedNotifications.slice(cursorIndex + 1)
       }
     }
 
     const hasMore = sortedNotifications.length > limit
-    const resultItems = hasMore ? sortedNotifications.slice(0, limit) : sortedNotifications
-    const nextCursor = hasMore && resultItems.length > 0
-      ? resultItems[resultItems.length - 1].id
-      : undefined
+    const resultItems = hasMore
+      ? sortedNotifications.slice(0, limit)
+      : sortedNotifications
+    const nextCursor =
+      hasMore && resultItems.length > 0
+        ? resultItems[resultItems.length - 1].id
+        : undefined
 
     return {
       items: resultItems,
@@ -837,7 +852,7 @@ export class RedisChatRepository implements IChatRepository {
     )
 
     if (cursor) {
-      const cursorIndex = sortedRooms.findIndex(r => r.id === cursor)
+      const cursorIndex = sortedRooms.findIndex((r) => r.id === cursor)
       if (cursorIndex >= 0) {
         sortedRooms = sortedRooms.slice(cursorIndex + 1)
       }
@@ -845,9 +860,10 @@ export class RedisChatRepository implements IChatRepository {
 
     const hasMore = sortedRooms.length > limit
     const resultItems = hasMore ? sortedRooms.slice(0, limit) : sortedRooms
-    const nextCursor = hasMore && resultItems.length > 0
-      ? resultItems[resultItems.length - 1].id
-      : undefined
+    const nextCursor =
+      hasMore && resultItems.length > 0
+        ? resultItems[resultItems.length - 1].id
+        : undefined
 
     return {
       items: resultItems,

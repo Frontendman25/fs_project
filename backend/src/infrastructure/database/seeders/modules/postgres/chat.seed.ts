@@ -1,5 +1,12 @@
-import { generateChatMessage, generateChatRoom } from '../../factories/chat.factory'
-import type { SeedContext, SeedModule, SeedModuleResult } from '../../seed.types'
+import {
+  generateChatMessage,
+  generateChatRoom
+} from '../../factories/chat.factory'
+import type {
+  SeedContext,
+  SeedModule,
+  SeedModuleResult
+} from '../../seed.types'
 
 /**
  * Seeds chat in Postgres: rooms, members, messages, notifications.
@@ -17,7 +24,10 @@ export const postgresChatSeed: SeedModule = {
 
     const users = identity.allUsers()
     if (users.length < 2) {
-      logger.warn({ users: users.length }, 'chat seed skipped: need at least 2 users')
+      logger.warn(
+        { users: users.length },
+        'chat seed skipped: need at least 2 users'
+      )
       return baseResult(start)
     }
 
@@ -37,7 +47,9 @@ export const postgresChatSeed: SeedModule = {
           createdByKey: owner.key
         })
 
-        const roomExisting = await tx.chatRoom.findUnique({ where: { id: roomId } })
+        const roomExisting = await tx.chatRoom.findUnique({
+          where: { id: roomId }
+        })
         const memberCount = users.length
 
         await tx.chatRoom.upsert({
@@ -65,7 +77,9 @@ export const postgresChatSeed: SeedModule = {
           const memberKey = `member:${roomKey}:${user.key}`
           const memberId = identity.deriveUuid(memberKey)
           const role =
-            user.key === owner.key ? 'admin' : faker.helpers.arrayElement(['moderator', 'member'] as const)
+            user.key === owner.key
+              ? 'admin'
+              : faker.helpers.arrayElement(['moderator', 'member'] as const)
 
           const memberExisting = await tx.chatMember.findUnique({
             where: { id: memberId }

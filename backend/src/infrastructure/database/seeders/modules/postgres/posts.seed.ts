@@ -1,5 +1,9 @@
 import { generatePost } from '../../factories/post.factory'
-import type { SeedContext, SeedModule, SeedModuleResult } from '../../seed.types'
+import type {
+  SeedContext,
+  SeedModule,
+  SeedModuleResult
+} from '../../seed.types'
 
 /**
  * Seeds `posts` in Postgres. The same (postKey, pgId, mongoObjectId) triple
@@ -17,7 +21,14 @@ export const postgresPostsSeed: SeedModule = {
     const users = identity.allUsers()
     if (users.length === 0) {
       logger.warn('posts seed skipped: no users in identity map')
-      return { name: 'posts', engine: 'postgres', created: 0, updated: 0, skipped: 0, durationMs: Date.now() - start }
+      return {
+        name: 'posts',
+        engine: 'postgres',
+        created: 0,
+        updated: 0,
+        skipped: 0,
+        durationMs: Date.now() - start
+      }
     }
 
     let created = 0

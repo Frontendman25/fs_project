@@ -4,4 +4,9 @@
  */
 
 export { PAGINATION_CONFIG, type PaginationConfig } from './pagination.config'
-export { RATE_LIMIT_CONFIG, JWT_CONFIG, type RateLimitConfig, type JWTConfig } from './auth.config'
+export {
+  RATE_LIMIT_CONFIG,
+  JWT_CONFIG,
+  type RateLimitConfig,
+  type JWTConfig
+} from './auth.config'

@@ -110,7 +110,10 @@ export class PostgreSQLFileRepository implements IFileRepository {
 
       return files.map((file: PrismaFile) => this.mapPrismaFileToEntity(file))
     } catch (error) {
-      this.logger.error({ error, namePattern }, 'Failed to find files by name pattern')
+      this.logger.error(
+        { error, namePattern },
+        'Failed to find files by name pattern'
+      )
       throw new Error('Failed to find files by name pattern')
     }
   }
@@ -210,7 +213,10 @@ export class PostgreSQLFileRepository implements IFileRepository {
 
       return files.map((file: PrismaFile) => this.mapPrismaFileToEntity(file))
     } catch (error) {
-      this.logger.error({ error, offset, limit }, 'Failed to find files with pagination')
+      this.logger.error(
+        { error, offset, limit },
+        'Failed to find files with pagination'
+      )
       throw new Error('Failed to find files with pagination')
     }
   }
@@ -242,7 +248,10 @@ export class PostgreSQLFileRepository implements IFileRepository {
 
       return files.map((file: PrismaFile) => this.mapPrismaFileToEntity(file))
     } catch (error) {
-      this.logger.error({ error, mimeType }, 'Failed to find files by MIME type')
+      this.logger.error(
+        { error, mimeType },
+        'Failed to find files by MIME type'
+      )
       throw new Error('Failed to find files by MIME type')
     }
   }
@@ -263,7 +272,10 @@ export class PostgreSQLFileRepository implements IFileRepository {
 
       return files.map((file: PrismaFile) => this.mapPrismaFileToEntity(file))
     } catch (error) {
-      this.logger.error({ error, storageType }, 'Failed to find files by storage type')
+      this.logger.error(
+        { error, storageType },
+        'Failed to find files by storage type'
+      )
       throw new Error('Failed to find files by storage type')
     }
   }
@@ -281,7 +293,10 @@ export class PostgreSQLFileRepository implements IFileRepository {
 
       return file ? this.mapPrismaFileToEntity(file) : null
     } catch (error) {
-      this.logger.error({ error, cloudinaryId }, 'Failed to find file by Cloudinary ID')
+      this.logger.error(
+        { error, cloudinaryId },
+        'Failed to find file by Cloudinary ID'
+      )
       throw new Error('Failed to find file by Cloudinary ID')
     }
   }

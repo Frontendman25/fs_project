@@ -49,10 +49,7 @@ export class ChatRoutes {
   private chatController: ChatController
   private authMiddleware: AuthMiddleware
 
-  constructor(
-    chatController: ChatController,
-    authMiddleware: AuthMiddleware
-  ) {
+  constructor(chatController: ChatController, authMiddleware: AuthMiddleware) {
     this.router = Router()
     this.chatController = chatController
     this.authMiddleware = authMiddleware
@@ -75,12 +72,21 @@ export class ChatRoutes {
     this.router.get('/rooms/:roomId', this.chatController.getRoom)
     this.router.post('/rooms/:roomId/join', this.chatController.joinRoom)
     this.router.post('/rooms/:roomId/leave', this.chatController.leaveRoom)
-    this.router.get('/rooms/:roomId/members', this.chatController.getRoomMembers)
-    this.router.get('/rooms/:roomId/messages', this.chatController.getRoomMessages)
+    this.router.get(
+      '/rooms/:roomId/members',
+      this.chatController.getRoomMembers
+    )
+    this.router.get(
+      '/rooms/:roomId/messages',
+      this.chatController.getRoomMessages
+    )
     this.router.get('/rooms/:roomId/online', this.chatController.getOnlineUsers)
 
     // User status routes
-    this.router.get('/users/:userId/online', this.chatController.checkUserOnline)
+    this.router.get(
+      '/users/:userId/online',
+      this.chatController.checkUserOnline
+    )
   }
 
   /**
@@ -91,4 +97,3 @@ export class ChatRoutes {
     return this.router
   }
 }
-

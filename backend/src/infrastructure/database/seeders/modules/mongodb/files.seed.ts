@@ -6,7 +6,11 @@ import {
   ensureFileIdentities,
   ensureUserIdentities
 } from '../../identity/identity.bootstrap'
-import type { SeedContext, SeedModule, SeedModuleResult } from '../../seed.types'
+import type {
+  SeedContext,
+  SeedModule,
+  SeedModuleResult
+} from '../../seed.types'
 
 export const mongodbFilesSeed: SeedModule = {
   name: 'files',
@@ -50,7 +54,9 @@ export const mongodbFilesSeed: SeedModule = {
     const result = await FileModel.bulkWrite(operations, { ordered: false })
 
     for (const user of users) {
-      const firstFile = files.find((fileIdentity) => fileIdentity.ownerKey === user.key)
+      const firstFile = files.find(
+        (fileIdentity) => fileIdentity.ownerKey === user.key
+      )
       if (!firstFile) {
         continue
       }

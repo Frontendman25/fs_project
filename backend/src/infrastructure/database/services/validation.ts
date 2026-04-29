@@ -49,4 +49,3 @@ export function validateRawQueryInput(input: {
 }): RawQueryInput {
   return rawQueryInputSchema.parse(input)
 }
-

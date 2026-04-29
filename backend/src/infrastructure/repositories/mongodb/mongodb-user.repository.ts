@@ -5,7 +5,10 @@ import {
   CreateUserData,
   UpdateUserData
 } from '../../../domain/entities/user.entity'
-import { UserDocument, UserModel } from '@/infrastructure/database/schemas/mongodb/user'
+import {
+  UserDocument,
+  UserModel
+} from '@/infrastructure/database/schemas/mongodb/user'
 
 /**
  * MongoDB User Repository Implementation using Mongoose ODM

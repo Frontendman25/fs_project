@@ -308,4 +308,3 @@ export class SocketIOChatEventService implements IChatEventService {
     return this.socketUsers.get(socketId)
   }
 }
-

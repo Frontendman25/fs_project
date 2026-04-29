@@ -13,9 +13,7 @@ import {
  * This is part of the Infrastructure layer in Clean Architecture
  * Implements the IRefreshTokenRepository interface for PostgreSQL database operations
  */
-export class PostgreSQLRefreshTokenRepository
-  implements IRefreshTokenRepository
-{
+export class PostgreSQLRefreshTokenRepository implements IRefreshTokenRepository {
   private logger: ILoggerService
 
   constructor(
@@ -76,9 +74,7 @@ export class PostgreSQLRefreshTokenRepository
         orderBy: { createdAt: 'desc' }
       })
 
-      return refreshTokens.map((token) =>
-        this.mapPrismaTokenToEntity(token)
-      )
+      return refreshTokens.map((token) => this.mapPrismaTokenToEntity(token))
     } catch (error) {
       this.logger.error(
         { error, userId },

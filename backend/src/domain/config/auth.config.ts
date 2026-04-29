@@ -11,13 +11,13 @@ export const RATE_LIMIT_CONFIG = {
    * Maximum number of login attempts before rate limiting kicks in
    */
   MAX_LOGIN_ATTEMPTS: 5,
-  
+
   /**
    * Time window for rate limiting (in milliseconds)
    * 15 minutes = 15 * 60 * 1000 ms
    */
   RATE_LIMIT_WINDOW_MS: 15 * 60 * 1000,
-  
+
   /**
    * Time to wait before allowing retry (in seconds)
    */
@@ -33,7 +33,7 @@ export const JWT_CONFIG = {
    * 15 minutes = 15 * 60 seconds
    */
   ACCESS_TOKEN_EXPIRES_IN: 15 * 60,
-  
+
   /**
    * Refresh token expiration time (in seconds)
    * 7 days = 7 * 24 * 60 * 60 seconds

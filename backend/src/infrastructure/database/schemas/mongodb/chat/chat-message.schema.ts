@@ -84,4 +84,3 @@ ChatMessageSchema.index({ replyTo: 1 })
 export const ChatMessageModel =
   mongoose.models.ChatMessage ||
   mongoose.model<ChatMessageDocument>('ChatMessage', ChatMessageSchema)
-

@@ -1,5 +1,9 @@
 import { generateFile } from '../../factories/file.factory'
-import type { SeedContext, SeedModule, SeedModuleResult } from '../../seed.types'
+import type {
+  SeedContext,
+  SeedModule,
+  SeedModuleResult
+} from '../../seed.types'
 
 /**
  * Seeds `files` + assigns `avatarFileId` to every user.

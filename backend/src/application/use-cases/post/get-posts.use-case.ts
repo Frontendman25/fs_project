@@ -1,5 +1,8 @@
 import { IPostRepository } from '../../../domain/repositories/post.repository'
-import { PostWithUser, CursorPaginationResult } from '../../../domain/entities/post.entity'
+import {
+  PostWithUser,
+  CursorPaginationResult
+} from '../../../domain/entities/post.entity'
 import { validateGetPostsQueryDTO } from '../../dtos/post.dto'
 
 /**
@@ -37,16 +40,19 @@ export class GetPostsUseCase {
       const validatedQuery = validateGetPostsQueryDTO(input.query)
 
       // Get posts with user information and cursor pagination
-      const posts = await this.postRepository.findWithUserAndCursor(validatedQuery)
+      const posts =
+        await this.postRepository.findWithUserAndCursor(validatedQuery)
 
       return { posts }
     } catch (error) {
       if (error instanceof Error && error.name === 'ValidationError') {
         throw error
       }
-      
+
       // Handle unexpected errors
-      throw new Error(`Failed to get posts: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      throw new Error(
+        `Failed to get posts: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
     }
   }
 }

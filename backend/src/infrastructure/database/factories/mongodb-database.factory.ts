@@ -172,7 +172,10 @@ export class MongoDBDatabaseFactory implements IDatabaseFactory {
 
       logger.info('MongoDB database connected successfully')
     } catch (error) {
-      logger.error({ error, connectionString: this.connectionString }, 'Failed to connect to MongoDB database')
+      logger.error(
+        { error, connectionString: this.connectionString },
+        'Failed to connect to MongoDB database'
+      )
       throw new Error(`Failed to connect to MongoDB database: ${error}`)
     }
   }
@@ -260,14 +263,10 @@ export class MongoDBDatabaseFactory implements IDatabaseFactory {
 
       switch (operation) {
         case MongoRawQueryOperation.FIND:
-          return (await collection
-            .find(query?.filter || {})
-            .toArray()) as T
+          return (await collection.find(query?.filter || {}).toArray()) as T
 
         case MongoRawQueryOperation.FIND_ONE:
-          return (await collection.findOne(
-            query?.filter || {}
-          )) as T
+          return (await collection.findOne(query?.filter || {})) as T
 
         case MongoRawQueryOperation.INSERT_ONE:
           if (!query) {
@@ -281,14 +280,13 @@ export class MongoDBDatabaseFactory implements IDatabaseFactory {
               'UpdateMany operation requires filter and update in query parameter'
             )
           }
-          return (await collection.updateMany(
-            query.filter,
-            query.update
-          )) as T
+          return (await collection.updateMany(query.filter, query.update)) as T
 
         case MongoRawQueryOperation.DELETE_ONE:
           if (!query?.filter) {
-            throw new Error('DeleteOne operation requires filter in query parameter')
+            throw new Error(
+              'DeleteOne operation requires filter in query parameter'
+            )
           }
           return (await collection.deleteOne(query.filter)) as T
 

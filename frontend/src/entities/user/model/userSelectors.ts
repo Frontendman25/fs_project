@@ -16,7 +16,8 @@ export const userSelectors = {
    * Select current user entity.
    * @param state - Root Redux state
    */
-  selectUser: (state: RootState): UserEntity | null => getSlice(state)?.data ?? null,
+  selectUser: (state: RootState): UserEntity | null =>
+    getSlice(state)?.data ?? null,
 
   /**
    * Select current user's avatar URL.
@@ -29,7 +30,8 @@ export const userSelectors = {
    * Select loading flag for user slice.
    * @param state - Root Redux state
    */
-  selectUserLoading: (state: RootState): boolean => Boolean(getSlice(state)?.loading),
+  selectUserLoading: (state: RootState): boolean =>
+    Boolean(getSlice(state)?.loading),
 
   /**
    * Select error message for user slice.

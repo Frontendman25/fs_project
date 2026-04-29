@@ -1,6 +1,9 @@
 import { Router } from 'express'
 
-import { UserController, uploadMiddleware } from '../controllers/user.controller'
+import {
+  UserController,
+  uploadMiddleware
+} from '../controllers/user.controller'
 
 /**
  * User Routes - Defines HTTP endpoints for user operations
@@ -23,9 +26,13 @@ export function createUserRoutes(userController: UserController): Router {
    * Uses multer middleware to handle multipart/form-data
    * Accepts image files for user profile pictures
    */
-  router.post('/users/:id/avatar', uploadMiddleware.single('avatar'), (req, res) => {
-    userController.uploadAvatar(req, res)
-  })
+  router.post(
+    '/users/:id/avatar',
+    uploadMiddleware.single('avatar'),
+    (req, res) => {
+      userController.uploadAvatar(req, res)
+    }
+  )
 
   /**
    * DELETE /users/:id/avatar - Delete user's avatar

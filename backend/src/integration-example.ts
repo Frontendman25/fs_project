@@ -1,7 +1,7 @@
 /**
  * Integration Example - How to integrate UserController and UserRoutes
  * This file demonstrates how to add avatar upload functionality to your existing backend
- * 
+ *
  * Follow these steps to integrate the avatar upload feature:
  */
 
@@ -44,9 +44,9 @@ export function integrateAvatarUploadWithCustomPrefix(
   const fileContainer = new FileContainer(databaseFactory)
   const userContainer = new UserContainer(databaseFactory, fileContainer)
   const userRoutes = createUserRoutes(userContainer.getUserController())
-  
+
   app.use(prefix, userRoutes) // This will create POST /users/users/:id/avatar
-  
+
   console.log(`✅ Avatar upload feature integrated with prefix: ${prefix}`)
 }
 

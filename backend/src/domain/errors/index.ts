@@ -9,4 +9,3 @@ export * from './app.error'
 
 // Database-specific errors
 export * from './database.errors'
-

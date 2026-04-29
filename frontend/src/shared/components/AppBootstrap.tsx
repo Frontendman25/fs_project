@@ -16,7 +16,9 @@ export function AppBootstrap() {
   const dispatch = useDispatch<AppDispatch>()
 
   useEffect(() => {
-    const token = typeof window !== 'undefined' && localStorage.getItem(config.auth.tokenKey)
+    const token =
+      typeof window !== 'undefined' &&
+      localStorage.getItem(config.auth.tokenKey)
     console.log('AppBootstrap: Token found:', !!token)
     if (token) {
       console.log('AppBootstrap: Dispatching fetchUserProfile')

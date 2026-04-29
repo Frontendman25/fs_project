@@ -1,7 +1,7 @@
 /**
  * Posts Entity Barrel Export - Centralized exports for posts entity
  * Follows Feature-Sliced Design architecture
- * 
+ *
  * Exports all model-related functionality (slice, thunks, selectors)
  * This is the single source of truth for posts model access
  */

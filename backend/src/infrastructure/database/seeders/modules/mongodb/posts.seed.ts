@@ -5,7 +5,11 @@ import {
   ensurePostIdentities,
   ensureUserIdentities
 } from '../../identity/identity.bootstrap'
-import type { SeedContext, SeedModule, SeedModuleResult } from '../../seed.types'
+import type {
+  SeedContext,
+  SeedModule,
+  SeedModuleResult
+} from '../../seed.types'
 
 /**
  * Seeds MongoDB posts using deterministic identities and bulk upserts keyed by _id.
@@ -62,7 +66,9 @@ export const mongodbPostsSeed: SeedModule = {
       updated: result.modifiedCount ?? 0,
       skipped: Math.max(
         0,
-        operations.length - (result.upsertedCount ?? 0) - (result.modifiedCount ?? 0)
+        operations.length -
+          (result.upsertedCount ?? 0) -
+          (result.modifiedCount ?? 0)
       ),
       durationMs: Date.now() - start
     }

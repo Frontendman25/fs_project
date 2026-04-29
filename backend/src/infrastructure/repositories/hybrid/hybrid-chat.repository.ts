@@ -30,7 +30,10 @@
 
 import { ILoggerService } from '@/domain/services/logger.service'
 import { IDatabaseFactory } from '@/domain/repositories/database.factory'
-import { IChatRepository, PaginatedResult } from '@/domain/repositories/chat.repository'
+import {
+  IChatRepository,
+  PaginatedResult
+} from '@/domain/repositories/chat.repository'
 import {
   ChatRoom,
   ChatMessage,
@@ -233,7 +236,9 @@ export class HybridChatRepository implements IChatRepository {
    * console.log(`Found ${publicRooms.length} public rooms`)
    * ```
    */
-  async findRoomsByQuery(query: ChatRoomQuery): Promise<PaginatedResult<ChatRoom>> {
+  async findRoomsByQuery(
+    query: ChatRoomQuery
+  ): Promise<PaginatedResult<ChatRoom>> {
     this.logger.debug({ query }, 'Finding rooms by query (hybrid)')
 
     try {
@@ -366,7 +371,9 @@ export class HybridChatRepository implements IChatRepository {
     return await this.chatRepository.findMessageById(messageId)
   }
 
-  async findMessagesByQuery(query: ChatMessageQuery): Promise<PaginatedResult<ChatMessage>> {
+  async findMessagesByQuery(
+    query: ChatMessageQuery
+  ): Promise<PaginatedResult<ChatMessage>> {
     this.logger.debug({ query }, 'Finding messages by query (hybrid)')
     return await this.chatRepository.findMessagesByQuery(query)
   }
@@ -399,7 +406,10 @@ export class HybridChatRepository implements IChatRepository {
     limit?: number,
     cursor?: string
   ): Promise<PaginatedResult<ChatMember>> {
-    this.logger.debug({ roomId, limit, cursor }, 'Finding room members (hybrid)')
+    this.logger.debug(
+      { roomId, limit, cursor },
+      'Finding room members (hybrid)'
+    )
     return await this.chatRepository.findMembersByRoom(roomId, limit, cursor)
   }
 
@@ -432,8 +442,15 @@ export class HybridChatRepository implements IChatRepository {
     limit = 50,
     cursor?: string
   ): Promise<PaginatedResult<ChatNotification>> {
-    this.logger.debug({ userId, limit, cursor }, 'Finding user notifications (hybrid)')
-    return await this.chatRepository.findNotificationsByUser(userId, limit, cursor)
+    this.logger.debug(
+      { userId, limit, cursor },
+      'Finding user notifications (hybrid)'
+    )
+    return await this.chatRepository.findNotificationsByUser(
+      userId,
+      limit,
+      cursor
+    )
   }
 
   async markNotificationAsRead(notificationId: string): Promise<boolean> {

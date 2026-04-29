@@ -1,4 +1,8 @@
-import { User, CreateUserData, UpdateUserData } from '@/domain/entities/user.entity'
+import {
+  User,
+  CreateUserData,
+  UpdateUserData
+} from '@/domain/entities/user.entity'
 
 /**
  * User Repository Interface - Defines contract for user data access

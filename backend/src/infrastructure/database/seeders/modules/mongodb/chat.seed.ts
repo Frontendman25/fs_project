@@ -13,7 +13,11 @@ import {
   ensureRoomIdentities,
   ensureUserIdentities
 } from '../../identity/identity.bootstrap'
-import type { SeedContext, SeedModule, SeedModuleResult } from '../../seed.types'
+import type {
+  SeedContext,
+  SeedModule,
+  SeedModuleResult
+} from '../../seed.types'
 
 /**
  * Seeds MongoDB chat data from deterministic identities.
@@ -68,7 +72,11 @@ export const mongodbChatSeed: SeedModule = {
         const memberKey = `member:${room.key}:${user.key}`
         const memberId = identity.deriveUuid(memberKey)
         const role =
-          user.key === owner.key ? 'admin' : user.key === users[0]!.key ? 'moderator' : 'member'
+          user.key === owner.key
+            ? 'admin'
+            : user.key === users[0]!.key
+              ? 'moderator'
+              : 'member'
 
         memberOps.push({
           updateOne: {
@@ -141,9 +149,15 @@ export const mongodbChatSeed: SeedModule = {
     ])
 
     const created =
-      roomRes.upserted + memberRes.upserted + messageRes.upserted + notifRes.upserted
+      roomRes.upserted +
+      memberRes.upserted +
+      messageRes.upserted +
+      notifRes.upserted
     const updated =
-      roomRes.modified + memberRes.modified + messageRes.modified + notifRes.modified
+      roomRes.modified +
+      memberRes.modified +
+      messageRes.modified +
+      notifRes.modified
 
     return {
       name: 'chat',
@@ -157,7 +171,12 @@ export const mongodbChatSeed: SeedModule = {
 }
 
 async function bulk(
-  model: { bulkWrite(ops: unknown[], opts: { ordered: boolean }): Promise<{ upsertedCount?: number; modifiedCount?: number }> },
+  model: {
+    bulkWrite(
+      ops: unknown[],
+      opts: { ordered: boolean }
+    ): Promise<{ upsertedCount?: number; modifiedCount?: number }>
+  },
   ops: unknown[]
 ): Promise<{ upserted: number; modified: number }> {
   if (ops.length === 0) return { upserted: 0, modified: 0 }

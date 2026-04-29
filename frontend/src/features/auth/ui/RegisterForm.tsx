@@ -29,16 +29,19 @@ import { Input } from '@/components/ui/input'
 type RegisterFormData = z.infer<ReturnType<typeof getRegisterSchema>>
 
 const getRegisterSchema = (t: ReturnType<typeof useTranslations>) =>
-  z.object({
-    name: z.string().min(2, t('error.validation.name.min')),
-    email: z.string().email(t('error.validation.email')),
-    password: z.string().min(6, t('error.validation.password.min', { length: 6 })),
-    confirmPassword: z.string()
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: t('error.validation.password.match'),
-    path: ['confirmPassword']
-  })
+  z
+    .object({
+      name: z.string().min(2, t('error.validation.name.min')),
+      email: z.string().email(t('error.validation.email')),
+      password: z
+        .string()
+        .min(6, t('error.validation.password.min', { length: 6 })),
+      confirmPassword: z.string()
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('error.validation.password.match'),
+      path: ['confirmPassword']
+    })
 
 interface RegisterFormProps {
   onSuccess?: () => void
@@ -87,10 +90,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
 
       onSuccess?.()
     } catch (error) {
-      const description = 
-        typeof error === 'string' 
-          ? error 
-          : (error as Error)?.message ?? t('error.description')
+      const description =
+        typeof error === 'string'
+          ? error
+          : ((error as Error)?.message ?? t('error.description'))
       toast.error(t('error.title'), {
         description
       })
@@ -108,7 +111,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         </div>
       </div>
 
-      <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
+      <form
+        className="mt-8 space-y-6"
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+      >
         <div className="space-y-4">
           <div>
             <label

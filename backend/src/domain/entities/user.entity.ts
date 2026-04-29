@@ -25,7 +25,10 @@ export interface User {
  * @property iat - JWT issued at
  * @property exp - JWT expiration time
  */
-export interface AuthenticatedUser extends Omit<User, 'password' | 'createdAt' | 'updatedAt'> {
+export interface AuthenticatedUser extends Omit<
+  User,
+  'password' | 'createdAt' | 'updatedAt'
+> {
   createdAt?: Date // Optional - not included in JWT token
   updatedAt?: Date // Optional - not included in JWT token
   iat: number // JWT issued at

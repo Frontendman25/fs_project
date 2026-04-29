@@ -5,7 +5,10 @@ import {
   CreateFileData,
   UpdateFileData
 } from '../../../domain/entities/file.entity'
-import { FileDocument, FileModel } from '@/infrastructure/database/schemas/mongodb/file'
+import {
+  FileDocument,
+  FileModel
+} from '@/infrastructure/database/schemas/mongodb/file'
 
 /**
  * MongoDB File Repository Implementation
@@ -84,7 +87,10 @@ export class MongoDBFileRepository implements IFileRepository {
 
       return files.map((file: FileDocument) => this.mapMongoFileToEntity(file))
     } catch (error) {
-      this.logger.error({ error, namePattern }, 'Failed to find files by name pattern')
+      this.logger.error(
+        { error, namePattern },
+        'Failed to find files by name pattern'
+      )
       throw new Error('Failed to find files by name pattern')
     }
   }
@@ -156,7 +162,10 @@ export class MongoDBFileRepository implements IFileRepository {
 
       return files.map((file: FileDocument) => this.mapMongoFileToEntity(file))
     } catch (error) {
-      this.logger.error({ error, offset, limit }, 'Failed to find files with pagination')
+      this.logger.error(
+        { error, offset, limit },
+        'Failed to find files with pagination'
+      )
       throw new Error('Failed to find files with pagination')
     }
   }
@@ -187,7 +196,10 @@ export class MongoDBFileRepository implements IFileRepository {
 
       return files.map((file: FileDocument) => this.mapMongoFileToEntity(file))
     } catch (error) {
-      this.logger.error({ error, mimeType }, 'Failed to find files by MIME type')
+      this.logger.error(
+        { error, mimeType },
+        'Failed to find files by MIME type'
+      )
       throw new Error('Failed to find files by MIME type')
     }
   }

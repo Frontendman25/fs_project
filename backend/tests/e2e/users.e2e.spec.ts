@@ -1,11 +1,4 @@
-import {
-  describe,
-  it,
-  expect,
-  beforeAll,
-  afterAll,
-  beforeEach
-} from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import request from 'supertest'
 import type { PrismaClient } from '@prisma/client'
 
@@ -16,8 +9,8 @@ import { truncateAllTables } from '../helpers/db'
 
 const dbConfigured = Boolean(
   process.env.POSTGRESQL_URL &&
-    process.env.JWT_SECRET &&
-    process.env.REFRESH_TOKEN_SECRET
+  process.env.JWT_SECRET &&
+  process.env.REFRESH_TOKEN_SECRET
 )
 
 describe.skipIf(!dbConfigured)('E2E: users HTTP', () => {

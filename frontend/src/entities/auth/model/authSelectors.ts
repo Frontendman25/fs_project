@@ -19,7 +19,8 @@ export const selectUser = (state: RootState) => state.auth.user
 /**
  * Select authentication status
  */
-export const selectIsAuthenticated = (state: RootState) => state.auth.isAuthenticated
+export const selectIsAuthenticated = (state: RootState) =>
+  state.auth.isAuthenticated
 
 /**
  * Select loading state for auth operations

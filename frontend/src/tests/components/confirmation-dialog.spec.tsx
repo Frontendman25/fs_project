@@ -10,7 +10,7 @@ const defaultProps = {
   title: 'Delete account',
   message: 'This action cannot be undone.',
   onClose: vi.fn(),
-  onConfirm: vi.fn(),
+  onConfirm: vi.fn()
 }
 
 describe('ConfirmationDialog', () => {
@@ -32,7 +32,9 @@ describe('ConfirmationDialog', () => {
 
     expect(await screen.findByRole('dialog')).toBeInTheDocument()
     expect(screen.getByText('Delete account')).toBeInTheDocument()
-    expect(screen.getByText('This action cannot be undone.')).toBeInTheDocument()
+    expect(
+      screen.getByText('This action cannot be undone.')
+    ).toBeInTheDocument()
   })
 
   it('renders custom action labels', () => {
@@ -44,8 +46,12 @@ describe('ConfirmationDialog', () => {
       />
     )
 
-    expect(screen.getByRole('button', { name: 'Yes, delete' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'No, keep it' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Yes, delete' })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'No, keep it' })
+    ).toBeInTheDocument()
   })
 
   it('uses default action labels', () => {
@@ -58,7 +64,9 @@ describe('ConfirmationDialog', () => {
   it('calls onClose when close icon button is clicked', async () => {
     render(<ConfirmationDialog {...defaultProps} />)
 
-    await user.click(screen.getByTestId(TEST_IDS.confirmationDialog.closeButton))
+    await user.click(
+      screen.getByTestId(TEST_IDS.confirmationDialog.closeButton)
+    )
 
     expect(defaultProps.onClose).toHaveBeenCalledOnce()
   })
@@ -66,7 +74,9 @@ describe('ConfirmationDialog', () => {
   it('calls onClose when cancel button is clicked', async () => {
     render(<ConfirmationDialog {...defaultProps} cancelText="Cancel" />)
 
-    await user.click(screen.getByTestId(TEST_IDS.confirmationDialog.cancelButton))
+    await user.click(
+      screen.getByTestId(TEST_IDS.confirmationDialog.cancelButton)
+    )
 
     expect(defaultProps.onClose).toHaveBeenCalledOnce()
   })
@@ -74,7 +84,9 @@ describe('ConfirmationDialog', () => {
   it('calls onConfirm when confirm button is clicked', async () => {
     render(<ConfirmationDialog {...defaultProps} confirmText="Confirm" />)
 
-    await user.click(screen.getByTestId(TEST_IDS.confirmationDialog.confirmButton))
+    await user.click(
+      screen.getByTestId(TEST_IDS.confirmationDialog.confirmButton)
+    )
 
     expect(defaultProps.onConfirm).toHaveBeenCalledOnce()
   })
@@ -106,8 +118,12 @@ describe('ConfirmationDialog', () => {
   it('disables action buttons when loading', () => {
     render(<ConfirmationDialog {...defaultProps} isLoading />)
 
-    expect(screen.getByTestId(TEST_IDS.confirmationDialog.cancelButton)).toBeDisabled()
-    expect(screen.getByTestId(TEST_IDS.confirmationDialog.confirmButton)).toBeDisabled()
+    expect(
+      screen.getByTestId(TEST_IDS.confirmationDialog.cancelButton)
+    ).toBeDisabled()
+    expect(
+      screen.getByTestId(TEST_IDS.confirmationDialog.confirmButton)
+    ).toBeDisabled()
   })
 
   it('renders loading text in confirm button when loading', () => {

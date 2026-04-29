@@ -4,5 +4,3 @@
  */
 
 export * from './post.schema'
-
-

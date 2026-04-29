@@ -7,7 +7,9 @@ import type {
   UserIdentity
 } from './identity-map'
 
-export function ensureUserIdentities(ctx: SeedContext): readonly UserIdentity[] {
+export function ensureUserIdentities(
+  ctx: SeedContext
+): readonly UserIdentity[] {
   const users: UserIdentity[] = []
 
   for (let i = 0; i < ctx.config.counts.users; i++) {

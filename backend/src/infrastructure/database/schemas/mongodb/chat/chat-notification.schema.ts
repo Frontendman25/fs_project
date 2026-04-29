@@ -66,5 +66,3 @@ export const ChatNotificationModel =
     'ChatNotification',
     ChatNotificationSchema
   )
-
-

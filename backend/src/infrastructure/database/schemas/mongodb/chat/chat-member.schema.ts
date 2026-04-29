@@ -77,4 +77,3 @@ ChatMemberSchema.index({ roomId: 1, userId: 1 }, { unique: true })
 export const ChatMemberModel =
   mongoose.models.ChatMember ||
   mongoose.model<ChatMemberDocument>('ChatMember', ChatMemberSchema)
-

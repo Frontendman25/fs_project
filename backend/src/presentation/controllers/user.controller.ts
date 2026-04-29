@@ -48,11 +48,17 @@ export class UserController {
       }
 
       // Validate file type (only allow images)
-      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+      const allowedMimeTypes = [
+        'image/jpeg',
+        'image/png',
+        'image/webp',
+        'image/gif'
+      ]
       if (!allowedMimeTypes.includes(req.file.mimetype)) {
         res.status(400).json({
           success: false,
-          error: 'Invalid file type. Only JPEG, PNG, WebP, and GIF images are allowed'
+          error:
+            'Invalid file type. Only JPEG, PNG, WebP, and GIF images are allowed'
         })
         return
       }
@@ -96,7 +102,9 @@ export class UserController {
       if (!updatedUser) {
         // If user update fails, we might want to clean up the uploaded file
         // For now, we'll still return success since the file was uploaded
-        console.warn(`Failed to update user ${userId} with avatar file ${uploadedFile.id}`)
+        console.warn(
+          `Failed to update user ${userId} with avatar file ${uploadedFile.id}`
+        )
       }
 
       // Return metadata about the uploaded avatar
@@ -257,7 +265,12 @@ export const uploadMiddleware = multer({
   },
   fileFilter: (req, file, cb) => {
     // Only allow image files for avatars
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+    const allowedMimeTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'image/gif'
+    ]
     if (allowedMimeTypes.includes(file.mimetype)) {
       cb(null, true)
     } else {

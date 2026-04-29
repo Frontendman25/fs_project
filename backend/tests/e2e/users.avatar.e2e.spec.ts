@@ -2,14 +2,7 @@
  * Avatar upload E2E — requires local storage (default) and a writable uploads dir.
  * Uses a tiny valid JPEG buffer (no external services).
  */
-import {
-  describe,
-  it,
-  expect,
-  beforeAll,
-  afterAll,
-  beforeEach
-} from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import request from 'supertest'
 import fs from 'fs'
 import path from 'path'
@@ -22,8 +15,8 @@ import { truncateAllTables } from '../helpers/db'
 
 const dbConfigured = Boolean(
   process.env.POSTGRESQL_URL &&
-    process.env.JWT_SECRET &&
-    process.env.REFRESH_TOKEN_SECRET
+  process.env.JWT_SECRET &&
+  process.env.REFRESH_TOKEN_SECRET
 )
 
 /** Minimal valid 1×1 PNG (transparent) */

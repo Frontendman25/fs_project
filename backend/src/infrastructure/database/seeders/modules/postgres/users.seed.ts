@@ -1,7 +1,11 @@
 import bcrypt from 'bcrypt'
 
 import { generateUser } from '../../factories/user.factory'
-import type { SeedContext, SeedModule, SeedModuleResult } from '../../seed.types'
+import type {
+  SeedContext,
+  SeedModule,
+  SeedModuleResult
+} from '../../seed.types'
 
 /**
  * Postgres `users` seed — source of truth for user identity.

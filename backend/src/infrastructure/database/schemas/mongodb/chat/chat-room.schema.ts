@@ -67,5 +67,3 @@ ChatRoomSchema.index({ createdAt: -1 })
 export const ChatRoomModel =
   mongoose.models.ChatRoom ||
   mongoose.model<ChatRoomDocument>('ChatRoom', ChatRoomSchema)
-
-

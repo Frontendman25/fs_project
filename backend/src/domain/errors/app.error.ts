@@ -13,13 +13,13 @@ export abstract class AppError extends Error {
     isOperational: boolean = true
   ) {
     super(message)
-    
+
     this.statusCode = statusCode
     this.isOperational = isOperational
-    
+
     // Maintains proper stack trace for where error was thrown
     Error.captureStackTrace(this, this.constructor)
-    
+
     // Set prototype to ensure instanceof works correctly
     Object.setPrototypeOf(this, new.target.prototype)
   }

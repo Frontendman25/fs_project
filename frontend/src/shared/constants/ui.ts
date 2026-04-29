@@ -11,12 +11,12 @@ export const UI_CONSTANTS = {
    * Default minimum height for textarea components
    */
   TEXTAREA_MIN_HEIGHT: '120px',
-  
+
   /**
    * Animation duration for loading states (in milliseconds)
    */
   LOADING_ANIMATION_DURATION: 500,
-  
+
   /**
    * Toast notification duration (in milliseconds)
    */

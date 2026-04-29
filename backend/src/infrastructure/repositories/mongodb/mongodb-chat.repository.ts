@@ -8,7 +8,10 @@ import mongoose, { FilterQuery } from 'mongoose'
 import { v4 as uuidv4 } from 'uuid'
 
 import { ILoggerService } from '@/domain/services/logger.service'
-import { IChatRepository, PaginatedResult } from '@/domain/repositories/chat.repository'
+import {
+  IChatRepository,
+  PaginatedResult
+} from '@/domain/repositories/chat.repository'
 import {
   ChatRoom,
   ChatMessage,
@@ -240,13 +243,15 @@ export class MongoDBChatRepository implements IChatRepository {
   //   }
   // }
 
-    /**
+  /**
    * Finds chat rooms with filtering, user membership check and cursor-based pagination
    *
    * @param query - Query parameters for filtering and pagination
    * @returns Promise resolving to paginated ChatRoom results
    */
-  async findRoomsByQuery(query: ChatRoomQuery): Promise<PaginatedResult<ChatRoom>> {
+  async findRoomsByQuery(
+    query: ChatRoomQuery
+  ): Promise<PaginatedResult<ChatRoom>> {
     this.logger.debug({ query }, 'Finding rooms by query')
 
     try {
@@ -260,12 +265,14 @@ export class MongoDBChatRepository implements IChatRepository {
       }
 
       if (query.userId) {
-        const memberRooms = await ChatMemberModel
-          .find({ userId: query.userId }, { roomId: 1, _id: 0 })
+        const memberRooms = await ChatMemberModel.find(
+          { userId: query.userId },
+          { roomId: 1, _id: 0 }
+        )
           .lean<Array<{ roomId: string }>>()
           .exec()
 
-        const roomIds = memberRooms.map(m => m.roomId)
+        const roomIds = memberRooms.map((m) => m.roomId)
 
         if (roomIds.length === 0) {
           return { items: [], hasMore: false }
@@ -275,8 +282,10 @@ export class MongoDBChatRepository implements IChatRepository {
       }
 
       if (query.cursor) {
-        const cursorRoom = await ChatRoomModel
-          .findOne({ id: query.cursor }, { createdAt: 1, _id: 0 })
+        const cursorRoom = await ChatRoomModel.findOne(
+          { id: query.cursor },
+          { createdAt: 1, _id: 0 }
+        )
           .lean<{ createdAt: Date } | null>()
           .exec()
 
@@ -285,8 +294,7 @@ export class MongoDBChatRepository implements IChatRepository {
         }
       }
 
-      const rooms = await ChatRoomModel
-        .find(filter)
+      const rooms = await ChatRoomModel.find(filter)
         .sort({ createdAt: -1 })
         .limit(dbLimit)
         .lean<ChatRoomDocument[]>()
@@ -294,9 +302,10 @@ export class MongoDBChatRepository implements IChatRepository {
 
       const hasMore = rooms.length > limit
       const resultItems = hasMore ? rooms.slice(0, limit) : rooms
-      const nextCursor = hasMore && resultItems.length > 0
-        ? resultItems[resultItems.length - 1].id
-        : undefined
+      const nextCursor =
+        hasMore && resultItems.length > 0
+          ? resultItems[resultItems.length - 1].id
+          : undefined
 
       return {
         items: resultItems as ChatRoom[],
@@ -439,7 +448,10 @@ export class MongoDBChatRepository implements IChatRepository {
         replyTo: messageData.replyTo || undefined
       })
 
-      this.logger.info({ messageId: message.id }, 'Message created successfully')
+      this.logger.info(
+        { messageId: message.id },
+        'Message created successfully'
+      )
       return message.toObject() as ChatMessage
     } catch (error) {
       this.logger.error({ error, messageData }, 'Failed to create message')
@@ -502,7 +514,9 @@ export class MongoDBChatRepository implements IChatRepository {
    * })
    * ```
    */
-  async findMessagesByQuery(query: ChatMessageQuery): Promise<PaginatedResult<ChatMessage>> {
+  async findMessagesByQuery(
+    query: ChatMessageQuery
+  ): Promise<PaginatedResult<ChatMessage>> {
     this.logger.debug({ query }, 'Finding messages by query')
 
     try {
@@ -522,8 +536,10 @@ export class MongoDBChatRepository implements IChatRepository {
       }
 
       if (query.cursor) {
-        const cursorMessage = await ChatMessageModel
-          .findOne({ id: query.cursor }, { createdAt: 1, _id: 0 })
+        const cursorMessage = await ChatMessageModel.findOne(
+          { id: query.cursor },
+          { createdAt: 1, _id: 0 }
+        )
           .lean<{ createdAt: Date } | null>()
           .exec()
 
@@ -535,8 +551,7 @@ export class MongoDBChatRepository implements IChatRepository {
         }
       }
 
-      const messages = await ChatMessageModel
-        .find(filter)
+      const messages = await ChatMessageModel.find(filter)
         .sort({ createdAt: -1 })
         .limit(dbLimit)
         .lean<ChatMessageDocument[]>()
@@ -544,9 +559,10 @@ export class MongoDBChatRepository implements IChatRepository {
 
       const hasMore = messages.length > limit
       const resultItems = hasMore ? messages.slice(0, limit) : messages
-      const nextCursor = hasMore && resultItems.length > 0
-        ? resultItems[resultItems.length - 1].id
-        : undefined
+      const nextCursor =
+        hasMore && resultItems.length > 0
+          ? resultItems[resultItems.length - 1].id
+          : undefined
 
       return {
         items: resultItems as ChatMessage[],
@@ -751,8 +767,10 @@ export class MongoDBChatRepository implements IChatRepository {
       const filter: FilterQuery<ChatMemberDocument> = { roomId }
 
       if (cursor) {
-        const cursorMember = await ChatMemberModel
-          .findOne({ id: cursor }, { joinedAt: 1, _id: 0 })
+        const cursorMember = await ChatMemberModel.findOne(
+          { id: cursor },
+          { joinedAt: 1, _id: 0 }
+        )
           .lean<{ joinedAt: Date } | null>()
           .exec()
 
@@ -761,8 +779,7 @@ export class MongoDBChatRepository implements IChatRepository {
         }
       }
 
-      const members = await ChatMemberModel
-        .find(filter)
+      const members = await ChatMemberModel.find(filter)
         .sort({ joinedAt: -1 })
         .limit(dbLimit)
         .lean<ChatMemberDocument[]>()
@@ -770,9 +787,10 @@ export class MongoDBChatRepository implements IChatRepository {
 
       const hasMore = members.length > limit
       const resultItems = hasMore ? members.slice(0, limit) : members
-      const nextCursor = hasMore && resultItems.length > 0
-        ? resultItems[resultItems.length - 1].id
-        : undefined
+      const nextCursor =
+        hasMore && resultItems.length > 0
+          ? resultItems[resultItems.length - 1].id
+          : undefined
 
       return {
         items: resultItems as ChatMember[],
@@ -946,8 +964,10 @@ export class MongoDBChatRepository implements IChatRepository {
       const filter: FilterQuery<ChatNotificationDocument> = { userId }
 
       if (cursor) {
-        const cursorNotification = await ChatNotificationModel
-          .findOne({ id: cursor }, { createdAt: 1, _id: 0 })
+        const cursorNotification = await ChatNotificationModel.findOne(
+          { id: cursor },
+          { createdAt: 1, _id: 0 }
+        )
           .lean<{ createdAt: Date } | null>()
           .exec()
 
@@ -956,18 +976,20 @@ export class MongoDBChatRepository implements IChatRepository {
         }
       }
 
-      const notifications = await ChatNotificationModel
-        .find(filter)
+      const notifications = await ChatNotificationModel.find(filter)
         .sort({ createdAt: -1 })
         .limit(dbLimit)
         .lean<ChatNotificationDocument[]>()
         .exec()
 
       const hasMore = notifications.length > limit
-      const resultItems = hasMore ? notifications.slice(0, limit) : notifications
-      const nextCursor = hasMore && resultItems.length > 0
-        ? resultItems[resultItems.length - 1].id
-        : undefined
+      const resultItems = hasMore
+        ? notifications.slice(0, limit)
+        : notifications
+      const nextCursor =
+        hasMore && resultItems.length > 0
+          ? resultItems[resultItems.length - 1].id
+          : undefined
 
       return {
         items: resultItems as ChatNotification[],
@@ -1041,7 +1063,10 @@ export class MongoDBChatRepository implements IChatRepository {
     this.logger.info({ userId, roomId }, 'Marking all notifications as read')
 
     try {
-      const filter: FilterQuery<ChatNotificationDocument> = { userId, isRead: false }
+      const filter: FilterQuery<ChatNotificationDocument> = {
+        userId,
+        isRead: false
+      }
       if (roomId) filter.roomId = roomId
 
       const result = await ChatNotificationModel.updateMany(filter, {
@@ -1148,8 +1173,10 @@ export class MongoDBChatRepository implements IChatRepository {
 
       const memberFilter: FilterQuery<ChatMemberDocument> = { userId }
       if (cursor) {
-        const cursorMember = await ChatMemberModel
-          .findOne({ id: cursor, userId }, { joinedAt: 1, _id: 0 })
+        const cursorMember = await ChatMemberModel.findOne(
+          { id: cursor, userId },
+          { joinedAt: 1, _id: 0 }
+        )
           .lean<{ joinedAt: Date } | null>()
           .exec()
 
@@ -1158,8 +1185,11 @@ export class MongoDBChatRepository implements IChatRepository {
         }
       }
 
-      const members = await ChatMemberModel
-        .find(memberFilter, { roomId: 1, joinedAt: 1, _id: 0 })
+      const members = await ChatMemberModel.find(memberFilter, {
+        roomId: 1,
+        joinedAt: 1,
+        _id: 0
+      })
         .sort({ joinedAt: -1 })
         .limit(dbLimit)
         .lean<Array<{ roomId: string; joinedAt: Date }>>()
@@ -1169,22 +1199,20 @@ export class MongoDBChatRepository implements IChatRepository {
         return { items: [], hasMore: false }
       }
 
-      const roomIds = members.map(m => m.roomId)
-      const rooms = await ChatRoomModel
-        .find({ id: { $in: roomIds } })
+      const roomIds = members.map((m) => m.roomId)
+      const rooms = await ChatRoomModel.find({ id: { $in: roomIds } })
         .lean<ChatRoomDocument[]>()
         .exec()
 
-      const roomMap = new Map(rooms.map(r => [r.id, r]))
+      const roomMap = new Map(rooms.map((r) => [r.id, r]))
       const orderedRooms = members
-        .map(m => roomMap.get(m.roomId))
+        .map((m) => roomMap.get(m.roomId))
         .filter((r): r is ChatRoomDocument => r !== undefined)
 
       const hasMore = members.length > limit
       const resultItems = hasMore ? orderedRooms.slice(0, limit) : orderedRooms
-      const nextCursor = hasMore && members.length > limit
-        ? members[limit].roomId
-        : undefined
+      const nextCursor =
+        hasMore && members.length > limit ? members[limit].roomId : undefined
 
       return {
         items: resultItems as ChatRoom[],

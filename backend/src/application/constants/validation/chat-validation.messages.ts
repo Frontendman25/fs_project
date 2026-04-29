@@ -2,7 +2,7 @@
  * Chat Validation Error Messages
  * Centralized error messages to avoid duplication
  * Following Clean Architecture - Application layer (constants/validation)
- * 
+ *
  * This file contains all validation error messages for chat-related operations.
  * Messages are centralized here to ensure consistency and avoid duplication.
  */

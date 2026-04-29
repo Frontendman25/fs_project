@@ -102,7 +102,7 @@ export const AvatarViewer: React.FC<AvatarViewerProps> = ({
         >
           <Download className="h-5 w-5" />
         </Button>
-        
+
         {onDelete && (
           <Button
             variant="ghost"

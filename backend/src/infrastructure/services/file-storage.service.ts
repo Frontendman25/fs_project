@@ -68,10 +68,7 @@ export class FileStorageService implements IFileStorageService {
       streams.push(writeStream)
 
       // Pipeline all streams together using array overload to avoid DOM ReadableStream ambiguity
-      await pipeline([
-        fileStream as NodeJS.ReadableStream,
-        ...streams
-      ])
+      await pipeline([fileStream as NodeJS.ReadableStream, ...streams])
 
       // Get compressed file size
       const stats = await fsPromises.stat(tempPath)

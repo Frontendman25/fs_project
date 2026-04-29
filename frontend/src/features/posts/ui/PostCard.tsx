@@ -30,7 +30,7 @@ interface PostCardProps {
 export const PostCard: FC<PostCardProps> = ({ post, className = '' }) => {
   const dispatch = useDispatch<AppDispatch>()
   const user = useSelector(userSelectors.selectUser)
-  
+
   const t = useTranslations('posts')
 
   const [isEditing, setIsEditing] = useState(false)

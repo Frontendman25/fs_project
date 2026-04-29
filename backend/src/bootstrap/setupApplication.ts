@@ -45,9 +45,8 @@ async function createDatabaseFactory(): Promise<IDatabaseFactory> {
     case 'postgresql':
       return new PostgreSQLDatabaseFactory()
     case 'mongodb': {
-      const { MongoDBDatabaseFactory } = await import(
-        '@/infrastructure/database/factories/mongodb-database.factory'
-      )
+      const { MongoDBDatabaseFactory } =
+        await import('@/infrastructure/database/factories/mongodb-database.factory')
       return new MongoDBDatabaseFactory()
     }
     default:

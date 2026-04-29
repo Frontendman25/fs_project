@@ -66,7 +66,12 @@ export class ChatController {
       res.status(500).json({
         success: false,
         message: 'Failed to create room',
-        error: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : 'Unknown error' : undefined
+        error:
+          process.env.NODE_ENV === 'development'
+            ? error instanceof Error
+              ? error.message
+              : 'Unknown error'
+            : undefined
       })
     }
   }
@@ -98,7 +103,12 @@ export class ChatController {
       res.status(500).json({
         success: false,
         message: 'Failed to get user rooms',
-        error: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : 'Unknown error' : undefined
+        error:
+          process.env.NODE_ENV === 'development'
+            ? error instanceof Error
+              ? error.message
+              : 'Unknown error'
+            : undefined
       })
     }
   }
@@ -125,14 +135,14 @@ export class ChatController {
 
       res.status(200).json({
         success: true,
-        data: { 
+        data: {
           room,
           isMember
         }
       })
     } catch (error) {
       console.error('Get room error:', error)
-      
+
       if (error instanceof ChatRoomNotFoundError) {
         res.status(404).json({
           success: false,
@@ -144,7 +154,12 @@ export class ChatController {
       res.status(500).json({
         success: false,
         message: 'Failed to get room',
-        error: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : 'Unknown error' : undefined
+        error:
+          process.env.NODE_ENV === 'development'
+            ? error instanceof Error
+              ? error.message
+              : 'Unknown error'
+            : undefined
       })
     }
   }
@@ -176,7 +191,7 @@ export class ChatController {
       })
     } catch (error) {
       console.error('Join room error:', error)
-      
+
       if (error instanceof ChatRoomNotFoundError) {
         res.status(404).json({
           success: false,
@@ -188,7 +203,12 @@ export class ChatController {
       res.status(500).json({
         success: false,
         message: 'Failed to join room',
-        error: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : 'Unknown error' : undefined
+        error:
+          process.env.NODE_ENV === 'development'
+            ? error instanceof Error
+              ? error.message
+              : 'Unknown error'
+            : undefined
       })
     }
   }
@@ -228,7 +248,12 @@ export class ChatController {
       res.status(500).json({
         success: false,
         message: 'Failed to leave room',
-        error: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : 'Unknown error' : undefined
+        error:
+          process.env.NODE_ENV === 'development'
+            ? error instanceof Error
+              ? error.message
+              : 'Unknown error'
+            : undefined
       })
     }
   }
@@ -258,7 +283,7 @@ export class ChatController {
       })
     } catch (error) {
       console.error('Get room members error:', error)
-      
+
       if (error instanceof ChatRoomNotFoundError) {
         res.status(404).json({
           success: false,
@@ -270,7 +295,12 @@ export class ChatController {
       res.status(500).json({
         success: false,
         message: 'Failed to get room members',
-        error: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : 'Unknown error' : undefined
+        error:
+          process.env.NODE_ENV === 'development'
+            ? error instanceof Error
+              ? error.message
+              : 'Unknown error'
+            : undefined
       })
     }
   }
@@ -318,7 +348,7 @@ export class ChatController {
       })
     } catch (error) {
       console.error('Get room messages error:', error)
-      
+
       if (error instanceof ChatRoomNotFoundError) {
         res.status(404).json({
           success: false,
@@ -338,7 +368,12 @@ export class ChatController {
       res.status(500).json({
         success: false,
         message: 'Failed to get room messages',
-        error: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : 'Unknown error' : undefined
+        error:
+          process.env.NODE_ENV === 'development'
+            ? error instanceof Error
+              ? error.message
+              : 'Unknown error'
+            : undefined
       })
     }
   }
@@ -381,7 +416,12 @@ export class ChatController {
       res.status(500).json({
         success: false,
         message: 'Failed to get online users',
-        error: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : 'Unknown error' : undefined
+        error:
+          process.env.NODE_ENV === 'development'
+            ? error instanceof Error
+              ? error.message
+              : 'Unknown error'
+            : undefined
       })
     }
   }
@@ -405,9 +445,13 @@ export class ChatController {
       res.status(500).json({
         success: false,
         message: 'Failed to check user online status',
-        error: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : 'Unknown error' : undefined
+        error:
+          process.env.NODE_ENV === 'development'
+            ? error instanceof Error
+              ? error.message
+              : 'Unknown error'
+            : undefined
       })
     }
   }
 }
-

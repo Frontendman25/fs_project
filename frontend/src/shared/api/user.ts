@@ -21,7 +21,10 @@ export const userApi = {
    * @param userData - User data to update
    * @returns Promise with updated user data
    */
-  async updateUserProfile(userId: string, userData: Partial<User>): Promise<ApiResponse<User>> {
+  async updateUserProfile(
+    userId: string,
+    userData: Partial<User>
+  ): Promise<ApiResponse<User>> {
     return apiClient.put(`/api/users/${userId}`, userData)
   }
 }

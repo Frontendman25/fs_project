@@ -79,7 +79,13 @@ export class SeedOrchestrator {
         reporter.stepFailure(mod.name, mod.engine, error)
         if (!this.config.continueOnError) {
           const { message, hint } = describeError(error)
-          throw new SeedPipelineError(mod.name, mod.engine, message, hint, error)
+          throw new SeedPipelineError(
+            mod.name,
+            mod.engine,
+            message,
+            hint,
+            error
+          )
         }
       }
     }

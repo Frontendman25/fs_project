@@ -59,12 +59,18 @@ async function main(): Promise<void> {
   } finally {
     if (needsPostgres) {
       await prisma.$disconnect().catch((e: unknown) => {
-        logger.warn({ error: describeError(e).message }, 'prisma disconnect failed')
+        logger.warn(
+          { error: describeError(e).message },
+          'prisma disconnect failed'
+        )
       })
     }
     if (mongoOpened) {
       await mongoose.disconnect().catch((e: unknown) => {
-        logger.warn({ error: describeError(e).message }, 'mongo disconnect failed')
+        logger.warn(
+          { error: describeError(e).message },
+          'mongo disconnect failed'
+        )
       })
     }
   }

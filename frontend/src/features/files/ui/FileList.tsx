@@ -23,12 +23,7 @@ import {
 } from '../../../entities/files/model/filesSlice'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   formatFileSize,
   formatDate,
@@ -36,8 +31,7 @@ import {
   truncateText
 } from '../../../shared/lib/utils'
 import { toast } from 'sonner'
-import { FileMetadata, PaginationParams } from '@/shared/types/api'
-import { AsyncThunkAction, ThunkDispatch, UnknownAction } from '@reduxjs/toolkit'
+import { FileMetadata } from '@/shared/types/api'
 
 interface FileListProps {
   onFileSelect?: (fileId: string) => void
@@ -81,14 +75,13 @@ export function FileList({ onFileSelect }: FileListProps) {
     const confirmed = window.confirm(
       'Are you sure you want to delete this file?'
     )
-    if (confirmed) {
-      try {
-        await dispatch(deleteFile(fileId))
-        toast.success('File has been deleted successfully.')
-      } catch (error) {
-        toast.error('Failed to delete file. Please try again.')
-        }
-      }
+    if (!confirmed) return
+
+    try {
+      await dispatch(deleteFile(fileId))
+      toast.success('File has been deleted successfully.')
+    } catch (error) {
+      toast.error('Failed to delete file. Please try again.')
     }
   }
 
@@ -243,7 +236,3 @@ export function FileList({ onFileSelect }: FileListProps) {
     </Card>
   )
 }
-function dispatch(arg0: AsyncThunkAction<{ files: FileMetadata[]; total: number; page: number; totalPages: number }, PaginationParams, { state?: unknown; dispatch?: ThunkDispatch<unknown, unknown, UnknownAction>; extra?: unknown; rejectValue?: unknown; serializedErrorType?: unknown; pendingMeta?: unknown; fulfilledMeta?: unknown; rejectedMeta?: unknown }>) {
-  throw new Error('Function not implemented.')
-}
-

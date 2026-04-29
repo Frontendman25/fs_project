@@ -39,7 +39,9 @@ export interface IChatRepository {
   // Chat Message operations
   createMessage(messageData: CreateChatMessageData): Promise<ChatMessage>
   findMessageById(messageId: string): Promise<ChatMessage | null>
-  findMessagesByQuery(query: ChatMessageQuery): Promise<PaginatedResult<ChatMessage>>
+  findMessagesByQuery(
+    query: ChatMessageQuery
+  ): Promise<PaginatedResult<ChatMessage>>
   updateMessage(
     messageId: string,
     updates: Partial<ChatMessage>
@@ -49,7 +51,11 @@ export interface IChatRepository {
   // Chat Member operations
   addMember(memberData: CreateChatMemberData): Promise<ChatMember>
   findMember(roomId: string, userId: string): Promise<ChatMember | null>
-  findMembersByRoom(roomId: string, limit?: number, cursor?: string): Promise<PaginatedResult<ChatMember>>
+  findMembersByRoom(
+    roomId: string,
+    limit?: number,
+    cursor?: string
+  ): Promise<PaginatedResult<ChatMember>>
   updateMember(
     roomId: string,
     userId: string,
@@ -72,5 +78,9 @@ export interface IChatRepository {
   // Utility operations
   getRoomMemberCount(roomId: string): Promise<number>
   isUserMemberOfRoom(roomId: string, userId: string): Promise<boolean>
-  getUserRooms(userId: string, limit?: number, cursor?: string): Promise<PaginatedResult<ChatRoom>>
+  getUserRooms(
+    userId: string,
+    limit?: number,
+    cursor?: string
+  ): Promise<PaginatedResult<ChatRoom>>
 }

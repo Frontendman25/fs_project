@@ -8,5 +8,3 @@
 export { PostModel, IPostDocument } from './mongodb/post/post.schema'
 export { UserModel, UserDocument } from './mongodb/user/user.schema'
 export { FileModel, FileDocument } from './mongodb/file/file.schema'
-
-

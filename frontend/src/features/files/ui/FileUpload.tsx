@@ -64,7 +64,9 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
   const validateAndSetFile = (file: File) => {
     // Check file size
     if (file.size > config.files.maxFileSize) {
-      toast.error(`File size must be less than ${formatFileSize(config.files.maxFileSize)}`)
+      toast.error(
+        `File size must be less than ${formatFileSize(config.files.maxFileSize)}`
+      )
       return
     }
 

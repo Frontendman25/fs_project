@@ -43,7 +43,10 @@ describe('cleanDatabase', () => {
     const keep = { deleteMany: vi.fn().mockResolvedValue({}) }
     const mongoose = mockMongoose({
       readyState: 1,
-      collections: { protected_logs: keep, users: { deleteMany: vi.fn().mockResolvedValue({}) } }
+      collections: {
+        protected_logs: keep,
+        users: { deleteMany: vi.fn().mockResolvedValue({}) }
+      }
     })
 
     await cleanDatabase(mongoose, {
@@ -67,7 +70,9 @@ describe('cleanDatabase', () => {
     conn.asPromise = vi.fn().mockImplementation(async () => {
       conn.readyState = 1
     })
-    const mongoose = { connection: conn } as unknown as import('mongoose').Mongoose
+    const mongoose = {
+      connection: conn
+    } as unknown as import('mongoose').Mongoose
 
     await cleanDatabase(mongoose)
 

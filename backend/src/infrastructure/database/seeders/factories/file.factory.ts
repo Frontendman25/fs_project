@@ -19,16 +19,15 @@ export interface GeneratedFile {
  * File metadata is keyed by `externalKey` so the produced filename/checksum
  * are stable across runs and safe to upsert on the `filename` unique index.
  */
-export function generateFile(
-  faker: Faker,
-  externalKey: string
-): GeneratedFile {
+export function generateFile(faker: Faker, externalKey: string): GeneratedFile {
   const extensions = ['jpg', 'png', 'pdf', 'txt', 'json']
   const ext = faker.helpers.arrayElement(extensions)
   const filename = `seed-${hash(externalKey).slice(0, 16)}.${ext}`
   const originalName = `${faker.system.commonFileName(ext)}`
   const size = faker.number.int({ min: 1024, max: 5 * 1024 * 1024 })
-  const compressedSize = Math.floor(size * faker.number.float({ min: 0.4, max: 0.9 }))
+  const compressedSize = Math.floor(
+    size * faker.number.float({ min: 0.4, max: 0.9 })
+  )
 
   return {
     originalName,

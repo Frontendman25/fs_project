@@ -12,7 +12,11 @@ interface IntlProviderProps extends PropsWithChildren {
   locale: string
 }
 
-export function IntlProvider({ children, messages, locale }: IntlProviderProps) {
+export function IntlProvider({
+  children,
+  messages,
+  locale
+}: IntlProviderProps) {
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
       {children}
