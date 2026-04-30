@@ -19,3 +19,13 @@ export function extractDeviceContext(req: Request): {
     ipAddress: ip
   }
 }
+
+/**
+ * Express params can be string or string[] depending on parser/middleware.
+ * Normalize to the first string value to keep controller boundaries strict.
+ */
+export function normalizeParam(
+  value: string | string[] | undefined
+): string | undefined {
+  return Array.isArray(value) ? value[0] : value
+}

@@ -12,6 +12,7 @@ import {
   InvalidMessageContentError,
   MessageSendingFailedError
 } from '@/domain/errors/chat.errors'
+import { normalizeParam } from '@/presentation/utils/requestContext'
 
 export class ChatController {
   constructor(private chatService: IChatService) {}
@@ -119,13 +120,13 @@ export class ChatController {
    */
   getRoom = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { roomId } = req.params
+      const roomId = normalizeParam(req.params.roomId)
       const userId = req.user?.id
 
-      if (!userId) {
+      if (!userId || !roomId) {
         res.status(401).json({
           success: false,
-          message: 'User not authenticated'
+          message: !userId ? 'User not authenticated' : 'Room ID is required'
         })
         return
       }
@@ -170,14 +171,17 @@ export class ChatController {
    */
   joinRoom = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { roomId } = req.params
+      const roomId = normalizeParam(req.params.roomId)
       const userId = req.user?.id
       const username = req.user?.username
 
-      if (!userId || !username) {
+      if (!userId || !username || !roomId) {
         res.status(401).json({
           success: false,
-          message: 'User not authenticated'
+          message:
+            !userId || !username
+              ? 'User not authenticated'
+              : 'Room ID is required'
         })
         return
       }
@@ -219,13 +223,13 @@ export class ChatController {
    */
   leaveRoom = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { roomId } = req.params
+      const roomId = normalizeParam(req.params.roomId)
       const userId = req.user?.id
 
-      if (!userId) {
+      if (!userId || !roomId) {
         res.status(401).json({
           success: false,
-          message: 'User not authenticated'
+          message: !userId ? 'User not authenticated' : 'Room ID is required'
         })
         return
       }
@@ -264,13 +268,13 @@ export class ChatController {
    */
   getRoomMembers = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { roomId } = req.params
+      const roomId = normalizeParam(req.params.roomId)
       const userId = req.user?.id
 
-      if (!userId) {
+      if (!userId || !roomId) {
         res.status(401).json({
           success: false,
-          message: 'User not authenticated'
+          message: !userId ? 'User not authenticated' : 'Room ID is required'
         })
         return
       }
@@ -311,14 +315,14 @@ export class ChatController {
    */
   getRoomMessages = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { roomId } = req.params
+      const roomId = normalizeParam(req.params.roomId)
       const userId = req.user?.id
       const { limit, cursor, before, after } = req.query
 
-      if (!userId) {
+      if (!userId || !roomId) {
         res.status(401).json({
           success: false,
-          message: 'User not authenticated'
+          message: !userId ? 'User not authenticated' : 'Room ID is required'
         })
         return
       }
@@ -384,13 +388,13 @@ export class ChatController {
    */
   getOnlineUsers = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { roomId } = req.params
+      const roomId = normalizeParam(req.params.roomId)
       const userId = req.user?.id
 
-      if (!userId) {
+      if (!userId || !roomId) {
         res.status(401).json({
           success: false,
-          message: 'User not authenticated'
+          message: !userId ? 'User not authenticated' : 'Room ID is required'
         })
         return
       }
@@ -432,7 +436,14 @@ export class ChatController {
    */
   checkUserOnline = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { userId } = req.params
+      const userId = normalizeParam(req.params.userId)
+      if (!userId) {
+        res.status(400).json({
+          success: false,
+          message: 'User ID is required'
+        })
+        return
+      }
 
       const isOnline = await this.chatService.isUserOnline(userId)
 

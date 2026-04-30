@@ -6,6 +6,7 @@ import { FileUseCase } from '../../application/use-cases/file.use-case'
 import { GetUserWithAvatarUseCase } from '../../application/use-cases/user/get-user-with-avatar.use-case'
 import { UpdateUserAvatarUseCase } from '../../application/use-cases/user/update-user-avatar.use-case'
 import { RemoveUserAvatarUseCase } from '../../application/use-cases/user/remove-user-avatar.use-case'
+import { normalizeParam } from '../utils/requestContext'
 
 /**
  * User Controller - Handles HTTP requests for user operations
@@ -27,7 +28,7 @@ export class UserController {
    */
   async uploadAvatar(req: Request, res: Response): Promise<void> {
     try {
-      const { id: userId } = req.params
+      const userId = normalizeParam(req.params.id)
 
       // Validate user ID parameter
       if (!userId) {
@@ -143,7 +144,7 @@ export class UserController {
    */
   async getUserProfile(req: Request, res: Response): Promise<void> {
     try {
-      const { id: userId } = req.params
+      const userId = normalizeParam(req.params.id)
 
       if (!userId) {
         res.status(400).json({
@@ -193,7 +194,7 @@ export class UserController {
    */
   async deleteAvatar(req: Request, res: Response): Promise<void> {
     try {
-      const { id: userId } = req.params
+      const userId = normalizeParam(req.params.id)
 
       if (!userId) {
         res.status(400).json({

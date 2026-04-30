@@ -4,6 +4,7 @@ import { Readable } from 'stream'
 
 import { FileUseCase } from '../../application/use-cases/file.use-case'
 import { User } from '../../domain/entities/user.entity'
+import { normalizeParam } from '../utils/requestContext'
 
 /**
  * File Controller - Handles HTTP requests for file operations
@@ -83,7 +84,7 @@ export class FileController {
    */
   async downloadFile(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params
+      const id = normalizeParam(req.params.id)
 
       if (!id) {
         res.status(400).json({
@@ -144,7 +145,7 @@ export class FileController {
    */
   async getFileMetadata(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params
+      const id = normalizeParam(req.params.id)
 
       if (!id) {
         res.status(400).json({
@@ -197,7 +198,7 @@ export class FileController {
    */
   async getFilesByUser(req: Request, res: Response): Promise<void> {
     try {
-      const { userId } = req.params
+      const userId = normalizeParam(req.params.userId)
 
       if (!userId) {
         res.status(400).json({
@@ -335,7 +336,7 @@ export class FileController {
    */
   async deleteFile(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params
+      const id = normalizeParam(req.params.id)
 
       if (!id) {
         res.status(400).json({

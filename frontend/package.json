@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint -c ../eslint.config.cjs \"src/**/*.{ts,tsx}\" \"middleware.ts\" \"next.config.ts\"",
     "lint:fix": "eslint -c ../eslint.config.cjs \"src/**/*.{ts,tsx}\" \"middleware.ts\" \"next.config.ts\" --fix",
