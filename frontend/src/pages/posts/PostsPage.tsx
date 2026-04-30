@@ -83,3 +83,5 @@ export const PostsPage: FC = () => {
     </div>
   )
 }
+
+export default PostsPage

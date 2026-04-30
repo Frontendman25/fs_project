@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import { getMessages } from 'next-intl/server'
 import { NextIntlClientProvider } from 'next-intl'
-import { Providers } from './providers'
 import { locales } from '@/i18n/config'
+
 import { SettingsMenu } from '@/shared/components/SettingsMenu'
 
 export function generateStaticParams() {
@@ -16,11 +16,12 @@ export const metadata: Metadata = {
 
 export default async function LocaleLayout({
   children,
-  params: { locale }
+  params
 }: {
   children: React.ReactNode
-  params: { locale: string }
+  params: Promise<{ locale: string }>
 }) {
+  const { locale } = await params
   const messages = await getMessages({ locale })
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>

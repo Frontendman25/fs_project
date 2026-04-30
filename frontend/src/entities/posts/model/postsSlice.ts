@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 import {
   postsApi,
@@ -135,8 +135,8 @@ export const getPosts = createAsyncThunk(
 
       if (response.success && response.data) {
         return {
-          posts: response.data,
-          pagination: response.pagination,
+          posts: response.data.data,
+          pagination: response.data.pagination,
           append: params.append || false
         }
       }
@@ -307,28 +307,18 @@ const postsSlice = createSlice({
         state.ui.loading = true
         state.ui.error = null
       })
-      .addCase(
-        getPosts.fulfilled,
-        (
-          state,
-          action: PayloadAction<{
-            posts: PostWithUser[]
-            pagination: { hasMore: boolean; nextCursor?: string }
-            append: boolean
-          }>
-        ) => {
-          state.ui.loading = false
-          console.log('action.payload', action.payload)
-          if (action.payload.append) {
-            // Append to existing posts for pagination
-            state.data.posts.push(...action.payload.posts)
-          } else {
-            // Replace posts for new search/filter
-            state.data.posts = action.payload.posts
-          }
-          state.ui.pagination = action.payload.pagination
+      .addCase(getPosts.fulfilled, (state, action) => {
+        state.ui.loading = false
+        console.log('action.payload', action.payload)
+        if (action.payload.append) {
+          // Append to existing posts for pagination
+          state.data.posts.push(...action.payload.posts)
+        } else {
+          // Replace posts for new search/filter
+          state.data.posts = action.payload.posts
         }
-      )
+        state.ui.pagination = action.payload.pagination
+      })
       .addCase(getPosts.rejected, (state, action) => {
         state.ui.loading = false
         state.ui.error = action.payload as string

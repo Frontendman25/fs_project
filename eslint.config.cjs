@@ -6,7 +6,9 @@ function requireFromAvailable(moduleName) {
     createRequire(__filename),
     createRequire(path.join(process.cwd(), 'package.json')),
     createRequire(path.join(process.cwd(), 'backend', 'package.json')),
-    createRequire(path.join(process.cwd(), 'frontend', 'package.json'))
+    createRequire(path.join(process.cwd(), 'frontend', 'package.json')),
+    createRequire(path.join(__dirname, 'backend', 'package.json')),
+    createRequire(path.join(__dirname, 'frontend', 'package.json'))
   ]
 
   for (const localRequire of candidates) {
@@ -26,6 +28,7 @@ const tsParser = requireFromAvailable('@typescript-eslint/parser')
 const tsPlugin = requireFromAvailable('@typescript-eslint/eslint-plugin')
 const prettierPlugin = requireFromAvailable('eslint-plugin-prettier')
 const eslintConfigPrettier = requireFromAvailable('eslint-config-prettier')
+const nextPlugin = requireFromAvailable('@next/eslint-plugin-next')
 
 const commonRules = {
   ...eslintConfigPrettier.rules,
@@ -73,7 +76,8 @@ module.exports = [
     },
     plugins: {
       '@typescript-eslint': tsPlugin,
-      prettier: prettierPlugin
+      prettier: prettierPlugin,
+      '@next/next': nextPlugin
     },
     rules: commonRules
   }

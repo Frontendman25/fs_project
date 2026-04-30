@@ -26,17 +26,15 @@ class ApiClient {
   private setupInterceptors(): void {
     // Request interceptor to add auth token
     this.axiosInstance.interceptors.request.use(
-      (config) => {
+      (requestConfig) => {
         if (typeof window !== 'undefined') {
-          const token = localStorage.getItem(
-            config.auth?.tokenKey || 'access_token'
-          )
+          const token = localStorage.getItem(config.auth.tokenKey)
           if (token) {
-            config.headers.Authorization = `Bearer ${token}`
+            requestConfig.headers.Authorization = `Bearer ${token}`
           }
         }
 
-        return config
+        return requestConfig
       },
       (error) => {
         return Promise.reject(error)
