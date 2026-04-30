@@ -20,6 +20,7 @@ dist/
 build/
 .next/
 out/
+.turbo/
 
 # ── Test / coverage ───────────────────────────────────────────────────────────
 coverage/

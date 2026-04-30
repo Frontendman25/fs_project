@@ -2,12 +2,21 @@
   "name": "fs-project",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "npm@10.7.0",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
   "description": "FS project monorepo — Next.js frontend + Clean Architecture Express backend",
   "license": "MIT",
   "scripts": {
     "prepare": "husky",
-    "lint": "npm run lint --prefix backend && npm run lint --prefix frontend",
-    "lint:fix": "npm run lint:fix --prefix backend && npm run lint:fix --prefix frontend"
+    "lint": "npx --yes turbo@latest run lint",
+    "lint:fix": "npx --yes turbo@latest run lint:fix",
+    "type-check": "npx --yes turbo@latest run type-check",
+    "build": "npx --yes turbo@latest run build",
+    "precommit:check": "npx --yes turbo@latest run lint type-check",
+    "prepush:check": "npx --yes turbo@latest run build"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.41.0",
@@ -18,6 +27,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "husky": "^9.1.7",
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "turbo": "^2.5.8"
   }
 }

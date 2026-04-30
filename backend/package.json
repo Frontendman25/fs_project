@@ -15,6 +15,7 @@
     "test:legacy": "ts-node ./tests/runTests.ts",
     "lint": "eslint -c ../eslint.config.cjs \"src/**/*.ts\" \"tests/**/*.ts\"",
     "lint:fix": "eslint -c ../eslint.config.cjs \"src/**/*.ts\" \"tests/**/*.ts\" --fix",
+    "type-check": "tsc --noEmit --ignoreDeprecations 6.0",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
     "setup": "node scripts/setup.js",
     "db:migrate": "prisma migrate dev",

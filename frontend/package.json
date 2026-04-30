@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint -c ../eslint.config.cjs \"src/**/*.{ts,tsx}\" \"middleware.ts\" \"next.config.ts\"",
     "lint:fix": "eslint -c ../eslint.config.cjs \"src/**/*.{ts,tsx}\" \"middleware.ts\" \"next.config.ts\" --fix",
+    "type-check": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.ts\"",
     "test": "vitest run",
     "test:watch": "vitest",
