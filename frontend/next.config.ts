@@ -19,13 +19,6 @@ const nextConfig: NextConfig = {
   // Produces a self-contained Node.js server in .next/standalone.
   // Required for the multi-stage Docker production image.
   output: 'standalone',
-  pageExtensions: [
-    'page.tsx',
-    'page.ts',
-    'layout.tsx',
-    'layout.ts',
-    'route.ts'
-  ],
   turbopack: {
     root: path.join(__dirname)
   },

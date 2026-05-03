@@ -2,8 +2,8 @@
 
 import { useTranslations } from 'next-intl'
 import { selectIsAuthenticated } from '@/entities/auth/model/authSelectors'
-import { AuthPage } from '@/pages/auth/AuthPage'
-import { DashboardPage as Dashboard } from '@/pages/dashboard/DashboardPage'
+import { AuthPage } from '@/screens/auth/AuthPage'
+import { DashboardPage as Dashboard } from '@/screens/dashboard/DashboardPage'
 import { useAppSelector } from '@/shared/lib/hooks'
 
 export default function DashboardPage() {

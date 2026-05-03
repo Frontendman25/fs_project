@@ -1,4 +1,5 @@
 import createMiddleware from 'next-intl/middleware'
+
 import { locales, defaultLocale } from './src/i18n/config'
 
 export default createMiddleware({
@@ -8,5 +9,5 @@ export default createMiddleware({
 })
 
 export const config = {
-  matcher: ['/((?!api|_next|.*\\..*).*)']
+  matcher: ['/', '/((?!api|_next|.*\\..*).*)']
 }

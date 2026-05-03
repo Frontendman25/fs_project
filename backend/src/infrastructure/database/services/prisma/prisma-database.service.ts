@@ -109,9 +109,13 @@ export class PrismaDatabaseService implements IDatabaseService {
    * @returns {Array} Array of log levels
    */
   private getLogLevels(): Array<'query' | 'info' | 'warn' | 'error'> {
-    return process.env.NODE_ENV === 'development'
-      ? ['query', 'info', 'warn', 'error']
-      : ['error']
+    const sqlTraceEnabled = process.env.SQL_TRACE === 'true'
+    if (process.env.NODE_ENV === 'development') {
+      return sqlTraceEnabled
+        ? ['query', 'info', 'warn', 'error']
+        : ['info', 'warn', 'error']
+    }
+    return sqlTraceEnabled ? ['query', 'error'] : ['error']
   }
 
   /**

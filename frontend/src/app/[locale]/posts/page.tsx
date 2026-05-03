@@ -1,4 +1,4 @@
-import { PostsPage } from '@/pages/posts/PostsPage'
+import { PostsPage } from '@/screens/posts/PostsPage'
 
 /**
  * Posts page route
