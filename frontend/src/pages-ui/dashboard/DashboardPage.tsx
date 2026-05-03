@@ -1,7 +1,7 @@
 /**
  * @fileoverview Dashboard page
  * @description Main dashboard page for authenticated users with logout functionality
- * @layer pages
+ * @layer pages-ui
  */
 
 'use client'

@@ -4,6 +4,7 @@ import { AuthUseCase } from '@/application/use-cases/auth.use-case'
 import { GetUserWithAvatarUseCase } from '@/application/use-cases/user/get-user-with-avatar.use-case'
 import { IDatabaseFactory } from '@/domain/repositories/database.factory'
 import { SecurityViolationError } from '@/domain/errors/app.error'
+import { refreshTokenCookieMaxAgeMs } from '@/domain/config/auth.config'
 
 import { extractDeviceContext } from '@/presentation/utils/requestContext'
 
@@ -145,7 +146,7 @@ export class AuthController {
         httpOnly: true, // Prevents XSS attacks
         secure: process.env.NODE_ENV === 'production', // HTTPS only in production
         sameSite: 'strict', // CSRF protection
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+        maxAge: refreshTokenCookieMaxAgeMs(),
         path: '/auth' // Limit cookie scope to auth routes
       })
 
@@ -238,7 +239,7 @@ export class AuthController {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'strict',
-          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+          maxAge: refreshTokenCookieMaxAgeMs(),
           path: '/auth'
         })
       }

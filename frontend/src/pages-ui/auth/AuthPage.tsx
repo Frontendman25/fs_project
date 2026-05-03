@@ -1,7 +1,7 @@
 /**
  * @fileoverview Authentication page component that handles user login and registration
- * @module pages/auth/AuthPage
- * @layer pages
+ * @module pages-ui/auth/AuthPage
+ * @layer pages-ui
  */
 
 'use client'

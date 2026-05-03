@@ -1,13 +1,11 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
 import { selectIsAuthenticated } from '@/entities/auth/model/authSelectors'
-import { AuthPage } from '@/screens/auth/AuthPage'
-import { DashboardPage as Dashboard } from '@/screens/dashboard/DashboardPage'
+import { AuthPage } from '@/pages-ui/auth/AuthPage'
+import { DashboardPage as Dashboard } from '@/pages-ui/dashboard/DashboardPage'
 import { useAppSelector } from '@/shared/lib/hooks'
 
 export default function DashboardPage() {
-  // const t = useTranslations('Index')
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
 
   if (!isAuthenticated) {

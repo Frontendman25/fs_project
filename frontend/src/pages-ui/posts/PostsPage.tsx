@@ -17,7 +17,7 @@ import { PostList } from '@/features/posts/ui/PostList'
 import { CreatePostForm } from '@/features/posts/ui/CreatePostForm'
 
 /**
- * PostsPage component - Main page for post management
+ * PostsPage component — page UI shell for post management (App Router composes this from `app/[locale]/posts`).
  * Follows Feature-Sliced Design architecture
  */
 export const PostsPage: FC = () => {

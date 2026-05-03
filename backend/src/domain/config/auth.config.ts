@@ -24,22 +24,43 @@ export const RATE_LIMIT_CONFIG = {
   RETRY_DELAY_SECONDS: 60
 } as const
 
-/**
- * JWT token configuration
- */
-export const JWT_CONFIG = {
-  /**
-   * Access token expiration time (in seconds)
-   * 15 minutes = 15 * 60 seconds
-   */
-  ACCESS_TOKEN_EXPIRES_IN: 15 * 60,
+function readAccessTokenExpiresIn(): string {
+  const raw = process.env.ACCESS_TOKEN_EXPIRES_IN?.trim()
+  return raw && raw.length > 0 ? raw : '12h'
+}
 
-  /**
-   * Refresh token expiration time (in seconds)
-   * 7 days = 7 * 24 * 60 * 60 seconds
-   */
-  REFRESH_TOKEN_EXPIRES_IN: 7 * 24 * 60 * 60
-} as const
+function readRefreshTokenExpiresDays(): number {
+  const raw = process.env.REFRESH_TOKEN_EXPIRES_DAYS?.trim()
+  if (!raw) {
+    return 7
+  }
+  const n = Number.parseInt(raw, 10)
+  return Number.isFinite(n) && n > 0 ? n : 7
+}
+
+export type AuthJwtSettings = {
+  accessTokenExpiresIn: string
+  refreshTokenExpiresDays: number
+}
+
+/**
+ * JWT / refresh timing (read lazily so `dotenv` runs before first use).
+ * - `accessTokenExpiresIn` → `jwt.sign` `expiresIn` (jsonwebtoken string/number rules).
+ * - `refreshTokenExpiresDays` → DB `expiresAt` and refresh cookie `maxAge`.
+ */
+export function getAuthJwtSettings(): AuthJwtSettings {
+  return {
+    accessTokenExpiresIn: readAccessTokenExpiresIn(),
+    refreshTokenExpiresDays: readRefreshTokenExpiresDays()
+  }
+}
+
+/**
+ * httpOnly refresh cookie `maxAge` in milliseconds — aligned with refresh token TTL.
+ */
+export function refreshTokenCookieMaxAgeMs(): number {
+  return readRefreshTokenExpiresDays() * 24 * 60 * 60 * 1000
+}
 
 /**
  * Type for rate limit configuration
@@ -47,6 +68,6 @@ export const JWT_CONFIG = {
 export type RateLimitConfig = typeof RATE_LIMIT_CONFIG
 
 /**
- * Type for JWT configuration
+ * Type for JWT timing configuration
  */
-export type JWTConfig = typeof JWT_CONFIG
+export type JWTConfig = AuthJwtSettings

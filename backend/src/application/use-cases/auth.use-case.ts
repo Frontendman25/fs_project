@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken'
+import jwt, { type SignOptions } from 'jsonwebtoken'
 import crypto from 'crypto'
 import bcrypt from 'bcrypt'
 
@@ -7,6 +7,7 @@ import { IRefreshTokenRepository } from '@/domain/repositories/refresh-token.rep
 import { User, CreateUserData } from '@/domain/entities/user.entity'
 import { RefreshToken } from '@/domain/entities/refresh-token.entity'
 import { SecurityViolationError } from '@/domain/errors/app.error'
+import { getAuthJwtSettings } from '@/domain/config/auth.config'
 
 /**
  * Authentication Use Case - Contains all business logic for authentication
@@ -14,9 +15,6 @@ import { SecurityViolationError } from '@/domain/errors/app.error'
  * Orchestrates domain entities and repository interfaces to implement auth features
  */
 export class AuthUseCase {
-  private readonly ACCESS_TOKEN_EXPIRES_IN = '12h' // Short-lived access token
-  private readonly REFRESH_TOKEN_EXPIRES_IN_DAYS = 7 // Long-lived refresh token
-
   constructor(
     private userRepository: IUserRepository,
     private refreshTokenRepository: IRefreshTokenRepository,
@@ -102,7 +100,8 @@ export class AuthUseCase {
     const refreshTokenString = this.generateRefreshTokenString()
     const refreshTokenExpiresAt = new Date()
     refreshTokenExpiresAt.setDate(
-      refreshTokenExpiresAt.getDate() + this.REFRESH_TOKEN_EXPIRES_IN_DAYS
+      refreshTokenExpiresAt.getDate() +
+        getAuthJwtSettings().refreshTokenExpiresDays
     )
 
     // Store refresh token in database with device context
@@ -178,7 +177,8 @@ export class AuthUseCase {
     const newRefreshTokenString = this.generateRefreshTokenString()
     const newRefreshTokenExpiresAt = new Date()
     newRefreshTokenExpiresAt.setDate(
-      newRefreshTokenExpiresAt.getDate() + this.REFRESH_TOKEN_EXPIRES_IN_DAYS
+      newRefreshTokenExpiresAt.getDate() +
+        getAuthJwtSettings().refreshTokenExpiresDays
     )
 
     // Store new refresh token with device context
@@ -275,11 +275,14 @@ export class AuthUseCase {
       email: user.email
     }
 
-    return jwt.sign(payload, this.jwtSecret, {
-      expiresIn: this.ACCESS_TOKEN_EXPIRES_IN,
+    const signOptions: SignOptions = {
+      expiresIn: getAuthJwtSettings()
+        .accessTokenExpiresIn as SignOptions['expiresIn'],
       issuer: 'your-app-name',
       audience: 'your-app-users'
-    })
+    }
+
+    return jwt.sign(payload, this.jwtSecret, signOptions)
   }
 
   /**

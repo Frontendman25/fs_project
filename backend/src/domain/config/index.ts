@@ -6,7 +6,9 @@
 export { PAGINATION_CONFIG, type PaginationConfig } from './pagination.config'
 export {
   RATE_LIMIT_CONFIG,
-  JWT_CONFIG,
+  getAuthJwtSettings,
+  refreshTokenCookieMaxAgeMs,
   type RateLimitConfig,
-  type JWTConfig
+  type JWTConfig,
+  type AuthJwtSettings
 } from './auth.config'
