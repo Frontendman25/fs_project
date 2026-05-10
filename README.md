@@ -44,7 +44,7 @@ Full-stack application: a **Next.js** frontend and an **Express** backend organi
    npm run dev
    ```
 
-   App URL: **http://localhost:3000** — point `NEXT_PUBLIC_API_URL` in `.env` at the backend (see root `.env.example`).
+   App URL: **http://localhost:3000** — set `NEXT_PUBLIC_API_URL` for the **frontend** (see [`frontend/.env.example`](./frontend/.env.example) or root `.env` when using Docker Compose).
 
 ## Docker (development)
 
