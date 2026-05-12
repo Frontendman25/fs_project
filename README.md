@@ -6,8 +6,10 @@
 
 ## Quick links
 
-- [Live Demo](https://REPLACE_WITH_VERCEL_URL)
-- [API Docs (Swagger)](https://REPLACE_WITH_RENDER_URL/api-docs)
+- [Live Demo](https://fsprojectfrontend.vercel.app/)
+- [API Docs (Swagger)](https://fs-project-backend-0aod.onrender.com/api-docs)
+
+Production: frontend on Vercel, API on Render.
 
 [![Next.js 15](https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 [![Tailwind CSS 4](https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
