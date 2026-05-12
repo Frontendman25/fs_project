@@ -18,6 +18,8 @@
 
 > **Note for reviewers:** if the API is hosted on Render’s free/spin-down tier, the first request after idle time can take roughly **30–50 seconds** while the service wakes up. Refresh once if health or Swagger looks slow.
 
+> To reduce how often the free tier spins down, an **external cron** (for example [cron-job.org](https://cron-job.org)) can call `GET /health` on your deployed API on a schedule (for example every ~10 minutes). That does not guarantee zero cold starts, but it usually shortens reviewer wait times.
+
 Full-stack application: a **Next.js** frontend and an **Express** backend organized with **Clean Architecture** (domain, application, infrastructure, presentation). Authentication, posts, file uploads, and real-time chat (Socket.IO + optional Redis) are first-class concerns.
 
 ## Repository layout
