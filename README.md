@@ -1,5 +1,23 @@
 # FS Project
 
+> **Work in progress** — portfolio-style codebase; APIs and behaviour may still shift.
+
+**Status:** Active development · Express + Next.js · type-check and tests in `package.json` scripts
+
+## Quick links
+
+- [Live Demo](https://REPLACE_WITH_VERCEL_URL)
+- [API Docs (Swagger)](https://REPLACE_WITH_RENDER_URL/api-docs)
+
+[![Next.js 15](https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![Tailwind CSS 4](https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![Neon](https://img.shields.io/badge/Neon-PostgreSQL-00E699)](https://neon.tech/)
+[![Redis](https://img.shields.io/badge/Redis-cache-DC382D?logo=redis&logoColor=white)](https://redis.io/)
+[![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+
+> **Note for reviewers:** if the API is hosted on Render’s free/spin-down tier, the first request after idle time can take roughly **30–50 seconds** while the service wakes up. Refresh once if health or Swagger looks slow.
+
 Full-stack application: a **Next.js** frontend and an **Express** backend organized with **Clean Architecture** (domain, application, infrastructure, presentation). Authentication, posts, file uploads, and real-time chat (Socket.IO + optional Redis) are first-class concerns.
 
 ## Repository layout

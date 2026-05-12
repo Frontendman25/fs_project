@@ -1,4 +1,8 @@
-import jwt, { type SignOptions } from 'jsonwebtoken'
+import jwt, {
+  type JwtPayload,
+  type SignOptions,
+  type VerifyOptions
+} from 'jsonwebtoken'
 import crypto from 'crypto'
 import bcrypt from 'bcrypt'
 
@@ -7,7 +11,20 @@ import { IRefreshTokenRepository } from '@/domain/repositories/refresh-token.rep
 import { User, CreateUserData } from '@/domain/entities/user.entity'
 import { RefreshToken } from '@/domain/entities/refresh-token.entity'
 import { SecurityViolationError } from '@/domain/errors/app.error'
-import { getAuthJwtSettings } from '@/domain/config/auth.config'
+import {
+  getAuthJwtSettings,
+  getJwtAudience,
+  getJwtIssuer
+} from '@/domain/config/auth.config'
+
+/** Payload returned after access JWT verification (strict shape for route handlers). */
+export type AccessTokenClaims = {
+  userId: string
+  username: string
+  email?: string
+  iat: number
+  exp: number
+}
 
 /**
  * Authentication Use Case - Contains all business logic for authentication
@@ -219,10 +236,47 @@ export class AuthUseCase {
    * @param accessToken - The access token to verify
    * @returns Promise containing decoded token payload
    */
-  async verifyAccessToken(accessToken: string): Promise<any> {
+  async verifyAccessToken(accessToken: string): Promise<AccessTokenClaims> {
+    const verifyOptions: VerifyOptions = {
+      issuer: getJwtIssuer(),
+      audience: getJwtAudience()
+    }
+
     try {
-      return jwt.verify(accessToken, this.jwtSecret)
-    } catch (error) {
+      const decoded = jwt.verify(accessToken, this.jwtSecret, verifyOptions)
+      if (typeof decoded === 'string') {
+        throw new Error('Invalid or expired access token')
+      }
+
+      const payload = decoded as JwtPayload & {
+        userId?: string
+        id?: string
+        username?: string
+        email?: string | null
+      }
+
+      const userId = payload.userId ?? payload.id
+      const username = payload.username
+      const rawEmail = payload.email
+
+      if (
+        typeof userId !== 'string' ||
+        userId.length === 0 ||
+        typeof username !== 'string' ||
+        typeof payload.iat !== 'number' ||
+        typeof payload.exp !== 'number'
+      ) {
+        throw new Error('Invalid or expired access token')
+      }
+
+      return {
+        userId,
+        username,
+        ...(rawEmail != null && rawEmail !== '' ? { email: rawEmail } : {}),
+        iat: payload.iat,
+        exp: payload.exp
+      }
+    } catch {
       throw new Error('Invalid or expired access token')
     }
   }
@@ -278,8 +332,8 @@ export class AuthUseCase {
     const signOptions: SignOptions = {
       expiresIn: getAuthJwtSettings()
         .accessTokenExpiresIn as SignOptions['expiresIn'],
-      issuer: 'your-app-name',
-      audience: 'your-app-users'
+      issuer: getJwtIssuer(),
+      audience: getJwtAudience()
     }
 
     return jwt.sign(payload, this.jwtSecret, signOptions)

@@ -63,11 +63,11 @@ export class AuthMiddleware {
 
       // Attach user information to the request object
       req.user = {
-        id: decoded.userId ?? decoded.id,
+        id: decoded.userId,
         username: decoded.username,
         email: decoded.email,
-        iat: decoded.iat, // Issued at
-        exp: decoded.exp // Expires at
+        iat: decoded.iat,
+        exp: decoded.exp
       }
 
       // Continue to the next middleware/route handler
@@ -135,7 +135,7 @@ export class AuthMiddleware {
 
       // Attach user information to the request object
       req.user = {
-        id: decoded.userId ?? decoded.id,
+        id: decoded.userId,
         username: decoded.username,
         email: decoded.email,
         iat: decoded.iat,
