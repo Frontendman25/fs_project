@@ -15,6 +15,19 @@ fi
 # In production the 'migrate deploy' command applies pending migrations
 # without asking for confirmation (safe for automated environments).
 if [ "$DATABASE_TYPE" = "postgresql" ]; then
+  # Neon pooler host cannot reliably take Prisma's migration advisory lock (P1002).
+  # directUrl in schema.prisma must point at the non-pooler host for migrate deploy.
+  if [ -z "${POSTGRESQL_DIRECT_URL:-}" ]; then
+    case "${POSTGRESQL_URL:-}" in
+      *-pooler.*)
+        export POSTGRESQL_DIRECT_URL="$(printf '%s\n' "$POSTGRESQL_URL" | sed 's/-pooler\././')"
+        ;;
+    esac
+  fi
+  if [ -z "${POSTGRESQL_DIRECT_URL:-}" ] && [ -n "${POSTGRESQL_URL:-}" ]; then
+    export POSTGRESQL_DIRECT_URL="$POSTGRESQL_URL"
+  fi
+
   echo "[startup] Running Prisma migrations..."
   npx prisma migrate deploy
   echo "[startup] Migrations complete."
