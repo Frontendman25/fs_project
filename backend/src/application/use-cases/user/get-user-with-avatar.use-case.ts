@@ -1,3 +1,4 @@
+import { getPublicFileUrlForClient } from '@/domain/config/file-url.config'
 import { IUserRepository } from '@/domain/repositories/user.repository'
 import { IFileRepository } from '@/domain/repositories/file.repository'
 
@@ -24,7 +25,7 @@ export class GetUserWithAvatarUseCase {
       try {
         const avatarFile = await this.fileRepository.findById(user.avatarFileId)
         if (avatarFile) {
-          avatarUrl = avatarFile.path
+          avatarUrl = getPublicFileUrlForClient(avatarFile)
         }
       } catch (error) {
         logger.warn({ err: error, userId }, 'Failed to get avatar for user')

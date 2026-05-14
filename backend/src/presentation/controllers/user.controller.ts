@@ -2,6 +2,8 @@ import { Request, Response } from 'express'
 import multer from 'multer'
 import { Readable } from 'stream'
 
+import { getPublicFileUrlForClient } from '@/domain/config/file-url.config'
+
 import { FileUseCase } from '../../application/use-cases/file.use-case'
 import { GetUserWithAvatarUseCase } from '../../application/use-cases/user/get-user-with-avatar.use-case'
 import { UpdateUserAvatarUseCase } from '../../application/use-cases/user/update-user-avatar.use-case'
@@ -108,6 +110,8 @@ export class UserController {
         )
       }
 
+      const publicUrl = getPublicFileUrlForClient(uploadedFile)
+
       // Return metadata about the uploaded avatar
       res.status(201).json({
         success: true,
@@ -122,9 +126,8 @@ export class UserController {
           isCompressed: uploadedFile.isCompressed,
           uploadedBy: uploadedFile.uploadedBy,
           createdAt: uploadedFile.createdAt,
-          // URL for accessing the avatar file
-          url: uploadedFile.path, // This is the Cloudinary URL
-          path: uploadedFile.path
+          url: publicUrl,
+          path: publicUrl
         }
       })
     } catch (error) {

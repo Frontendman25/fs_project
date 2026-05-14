@@ -2,7 +2,6 @@
 
 import React from 'react'
 import { X, Download, Trash2 } from 'lucide-react'
-import Image from 'next/image'
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/shared/lib/utils'
@@ -38,23 +37,16 @@ export const AvatarViewer: React.FC<AvatarViewerProps> = ({
   onDelete,
   className
 }) => {
-  if (!isOpen || !avatarUrl) return null
-
-  /**
-   * Handle download of the avatar image
-   */
-  const handleDownload = () => {
+  const handleDownload = React.useCallback(() => {
+    if (!avatarUrl) return
     const link = document.createElement('a')
     link.href = avatarUrl
     link.download = `${username || 'avatar'}-avatar.jpg`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-  }
+  }, [avatarUrl, username])
 
-  /**
-   * Handle escape key press
-   */
   React.useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -64,7 +56,7 @@ export const AvatarViewer: React.FC<AvatarViewerProps> = ({
 
     if (isOpen) {
       document.addEventListener('keydown', handleEscape)
-      document.body.style.overflow = 'hidden' // Prevent background scrolling
+      document.body.style.overflow = 'hidden'
     }
 
     return () => {
@@ -72,6 +64,10 @@ export const AvatarViewer: React.FC<AvatarViewerProps> = ({
       document.body.style.overflow = 'unset'
     }
   }, [isOpen, onClose])
+
+  if (!isOpen || !avatarUrl) {
+    return null
+  }
 
   return (
     <div
@@ -121,13 +117,12 @@ export const AvatarViewer: React.FC<AvatarViewerProps> = ({
         className="relative max-h-[90vh] max-w-[90vw] cursor-zoom-in"
         onClick={(e) => e.stopPropagation()}
       >
-        <Image
+        <img
           src={avatarUrl}
           alt={`${username || 'User'} avatar`}
           width={800}
           height={800}
           className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain"
-          priority
         />
       </div>
 
