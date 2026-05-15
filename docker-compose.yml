@@ -18,7 +18,7 @@ services:
 
   # ─── PostgreSQL ────────────────────────────────────────────────────────────
   postgres:
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-fs_project}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
@@ -83,12 +83,14 @@ services:
     environment:
       # ── Database selection ─────────────────────────────────────────────────
       DATABASE_TYPE: ${DATABASE_TYPE:-postgresql}
+      DATABASE_TARGET: ${DATABASE_TARGET:-local}
 
       # Connection strings use Docker service names as hostnames.
       # Both are provided regardless of DATABASE_TYPE so that the app can
       # connect to whichever is selected without requiring container rebuilds.
-      POSTGRESQL_URL: >-
-        postgresql://${POSTGRES_USER:-fs_project}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-fs_project}
+      BACKEND_POSTGRESQL_URL: ${BACKEND_POSTGRESQL_URL:-}
+      LOCAL_POSTGRESQL_URL: ${LOCAL_POSTGRESQL_URL:-postgresql://${POSTGRES_USER:-fs_project}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-fs_project}}
+      POSTGRESQL_URL: ${LOCAL_POSTGRESQL_URL:-postgresql://${POSTGRES_USER:-fs_project}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-fs_project}}
       MONGODB_URI: >-
         mongodb://${MONGO_USER:-fs_project}:${MONGO_PASSWORD}@mongodb:27017/${MONGO_DB:-fs_project}?authSource=admin
 

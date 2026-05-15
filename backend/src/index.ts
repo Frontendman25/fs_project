@@ -5,11 +5,15 @@
  * For tests, import `setupApplication` from `@/bootstrap/setupApplication` instead.
  */
 
+import path from 'path'
+
 import dotenv from 'dotenv'
 
 import { setupApplication } from '@/bootstrap/setupApplication'
 
-dotenv.config()
+// Monorepo root .env (Docker Compose + local tools), then backend/.env overrides.
+dotenv.config({ path: path.resolve(__dirname, '../../.env') })
+dotenv.config({ path: path.resolve(__dirname, '../.env') })
 
 async function main(): Promise<void> {
   const bundle = await setupApplication({ listen: true })
