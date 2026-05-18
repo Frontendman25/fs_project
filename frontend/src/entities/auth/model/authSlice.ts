@@ -5,7 +5,12 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 import { authApi } from '@/shared/api/auth'
 import { userApi } from '@/shared/api/user'
 import { User, LoginRequest, RegisterRequest } from '@/shared/types/api'
-import { config } from '@/shared/config'
+import {
+  clearAccessToken,
+  setAccessToken
+} from '@/shared/lib/auth/access-token.store'
+import { isAuthSessionInvalidError } from '@/shared/lib/auth/refresh-error'
+import { silentRefreshAccessToken } from '@/shared/lib/auth/silent-refresh'
 import { setUser as setUserEntity } from '@/entities/user/model/userSlice'
 
 interface AuthState {
@@ -30,15 +35,7 @@ export const loginUser = createAsyncThunk(
       const response = await authApi.login(credentials)
 
       if (response.success && response.data) {
-        // Store tokens in localStorage
-        localStorage.setItem(config.auth.tokenKey, response.data.accessToken)
-
-        if (response.data.refreshToken) {
-          localStorage.setItem(
-            config.auth.refreshTokenKey,
-            response.data.refreshToken
-          )
-        }
+        setAccessToken(response.data.accessToken)
 
         // Mirror user data to user slice (convert User to UserEntity)
         const userEntity = {
@@ -84,6 +81,26 @@ export const registerUser = createAsyncThunk(
       return rejectWithValue(
         error instanceof Error ? error.message : 'Registration failed'
       )
+    }
+  }
+)
+
+/** F5 / app start: refresh cookie → access token → profile. */
+export const bootstrapSession = createAsyncThunk(
+  'auth/bootstrap',
+  async (_, { dispatch }) => {
+    try {
+      const token = await silentRefreshAccessToken()
+      if (!token) {
+        return null
+      }
+
+      return await dispatch(fetchUserProfile()).unwrap()
+    } catch (error) {
+      if (isAuthSessionInvalidError(error)) {
+        clearAccessToken()
+      }
+      return null
     }
   }
 )
@@ -134,18 +151,14 @@ export const logoutUser = createAsyncThunk(
   async (_, { rejectWithValue, dispatch }) => {
     try {
       await authApi.logout()
-      // Clear tokens from localStorage
-      localStorage.removeItem(config.auth.tokenKey)
-      localStorage.removeItem(config.auth.refreshTokenKey)
+      clearAccessToken()
 
       // Clear user data from user slice
       dispatch(setUserEntity(null))
 
       return true
     } catch (error) {
-      // Even if API call fails, clear local tokens
-      localStorage.removeItem(config.auth.tokenKey)
-      localStorage.removeItem(config.auth.refreshTokenKey)
+      clearAccessToken()
 
       // Clear user data from user slice even on error
       dispatch(setUserEntity(null))
@@ -162,18 +175,15 @@ export const refreshToken = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await authApi.refreshToken()
-      if (response.success && response.data) {
-        localStorage.setItem(config.auth.tokenKey, response.data.accessToken)
-        if (response.data.refreshToken) {
-          localStorage.setItem(
-            config.auth.refreshTokenKey,
-            response.data.refreshToken
-          )
-        }
+      if (response.success && response.data?.accessToken) {
+        setAccessToken(response.data.accessToken)
         return response.data
       }
       throw new Error(response.message || 'Token refresh failed')
     } catch (error) {
+      if (isAuthSessionInvalidError(error)) {
+        clearAccessToken()
+      }
       return rejectWithValue(
         error instanceof Error ? error.message : 'Token refresh failed'
       )
@@ -193,6 +203,7 @@ const authSlice = createSlice({
       state.isAuthenticated = true
     },
     clearAuth: (state) => {
+      clearAccessToken()
       state.user = null
       state.isAuthenticated = false
       state.error = null
@@ -229,6 +240,26 @@ const authSlice = createSlice({
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false
         state.error = action.payload as string
+      })
+      // Bootstrap session (silent refresh on load)
+      .addCase(bootstrapSession.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(bootstrapSession.fulfilled, (state, action) => {
+        state.isLoading = false
+        state.error = null
+        if (action.payload) {
+          state.user = action.payload
+          state.isAuthenticated = true
+        } else {
+          state.user = null
+          state.isAuthenticated = false
+        }
+      })
+      .addCase(bootstrapSession.rejected, (state) => {
+        state.isLoading = false
+        state.isAuthenticated = false
+        state.user = null
       })
       // Fetch Profile
       .addCase(fetchUserProfile.pending, (state) => {

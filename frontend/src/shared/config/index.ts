@@ -11,8 +11,8 @@ export const config = {
     timeout: 10000
   },
   auth: {
-    tokenKey: 'access_token',
-    refreshTokenKey: 'refresh_token'
+    /** @deprecated Access token is kept in memory; refresh uses httpOnly cookie only. */
+    tokenKey: 'accessToken'
   },
   files: {
     maxFileSize: 10 * 1024 * 1024, // 10MB

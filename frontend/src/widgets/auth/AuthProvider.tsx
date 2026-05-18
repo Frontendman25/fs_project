@@ -1,55 +1,44 @@
 'use client'
 
 import React, { ReactNode, FC, useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
-import { AppDispatch, RootState } from '../../app/store'
-import { fetchUserProfile, setUser } from '../../entities/auth/model/authSlice'
-import { config } from '../../shared/config'
+import { AppDispatch } from '../../app/store'
+import {
+  bootstrapSession,
+  clearAuth
+} from '../../entities/auth/model/authSlice'
+import { setSessionExpiredHandler } from '@/shared/lib/auth/access-token.store'
 
 interface AuthProviderProps {
   children: ReactNode
 }
 
 /**
- * Authentication Provider Component - Handles user authentication state
- * Wraps child components with user authentication context
- * @param children - Child components
+ * Restores session on load via httpOnly refresh cookie (silent refresh).
  */
 export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const dispatch = useDispatch<AppDispatch>()
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth)
   const [isInitialized, setIsInitialized] = useState(false)
 
   useEffect(() => {
-    const initAuth = async () => {
-      // Check if there's a token in localStorage
-      const token = localStorage.getItem(config.auth.tokenKey)
+    setSessionExpiredHandler(() => {
+      dispatch(clearAuth())
+    })
+    return () => setSessionExpiredHandler(null)
+  }, [dispatch])
 
-      if (token) {
-        try {
-          // Try to fetch user profile with the existing token
-          await dispatch(fetchUserProfile()).unwrap()
-        } catch (error) {
-          // Token is invalid, remove it
-          localStorage.removeItem(config.auth.tokenKey)
-          localStorage.removeItem(config.auth.refreshTokenKey)
-        }
-      }
-
+  useEffect(() => {
+    void dispatch(bootstrapSession()).finally(() => {
       setIsInitialized(true)
-    }
-
-    initAuth()
+    })
   }, [dispatch])
 
   if (!isInitialized) {
     return (
-      <>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        </div>
-      </>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      </div>
     )
   }
 
