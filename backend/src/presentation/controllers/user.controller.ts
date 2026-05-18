@@ -2,9 +2,8 @@ import { Request, Response } from 'express'
 import multer from 'multer'
 import { Readable } from 'stream'
 
-import { getPublicFileUrlForClient } from '@/domain/config/file-url.config'
-
 import { FileUseCase } from '../../application/use-cases/file.use-case'
+import { toAvatarUploadClientDto } from '../mappers/file-response.mapper'
 import { GetUserWithAvatarUseCase } from '../../application/use-cases/user/get-user-with-avatar.use-case'
 import { UpdateUserAvatarUseCase } from '../../application/use-cases/user/update-user-avatar.use-case'
 import { RemoveUserAvatarUseCase } from '../../application/use-cases/user/remove-user-avatar.use-case'
@@ -110,25 +109,10 @@ export class UserController {
         )
       }
 
-      const publicUrl = getPublicFileUrlForClient(uploadedFile)
-
-      // Return metadata about the uploaded avatar
       res.status(201).json({
         success: true,
         message: 'Avatar uploaded successfully',
-        data: {
-          id: uploadedFile.id,
-          originalName: uploadedFile.originalName,
-          mimeType: uploadedFile.mimeType,
-          size: uploadedFile.size,
-          compressedSize: uploadedFile.compressedSize,
-          compressionRatio: uploadedFile.compressionRatio,
-          isCompressed: uploadedFile.isCompressed,
-          uploadedBy: uploadedFile.uploadedBy,
-          createdAt: uploadedFile.createdAt,
-          url: publicUrl,
-          path: publicUrl
-        }
+        data: toAvatarUploadClientDto(uploadedFile)
       })
     } catch (error) {
       console.error('Error uploading avatar:', error)

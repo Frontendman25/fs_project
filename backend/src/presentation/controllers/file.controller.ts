@@ -3,8 +3,9 @@ import multer from 'multer'
 import { Readable } from 'stream'
 
 import { FileUseCase } from '../../application/use-cases/file.use-case'
-import { User } from '../../domain/entities/user.entity'
+
 import { normalizeParam } from '../utils/requestContext'
+import { toFileClientDto } from '../mappers/file-response.mapper'
 
 /**
  * File Controller - Handles HTTP requests for file operations
@@ -56,16 +57,7 @@ export class FileController {
       res.status(201).json({
         success: true,
         message: 'File uploaded successfully',
-        data: {
-          id: file.id,
-          originalName: file.originalName,
-          mimeType: file.mimeType,
-          size: file.size,
-          compressedSize: file.compressedSize,
-          compressionRatio: file.compressionRatio,
-          isCompressed: file.isCompressed,
-          createdAt: file.createdAt
-        }
+        data: toFileClientDto(file)
       })
     } catch (error) {
       console.error('Error uploading file:', error)
@@ -167,19 +159,10 @@ export class FileController {
 
       res.json({
         success: true,
-        data: {
-          id: file.id,
-          originalName: file.originalName,
-          mimeType: file.mimeType,
-          size: file.size,
-          compressedSize: file.compressedSize,
-          compressionRatio: file.compressionRatio,
-          isCompressed: file.isCompressed,
-          uploadedBy: file.uploadedBy,
-          checksum: file.checksum,
-          createdAt: file.createdAt,
-          updatedAt: file.updatedAt
-        }
+        data: toFileClientDto(file, {
+          includeChecksum: true,
+          includeUpdatedAt: true
+        })
       })
     } catch (error) {
       console.error('Error getting file metadata:', error)
@@ -212,16 +195,7 @@ export class FileController {
 
       res.json({
         success: true,
-        data: files.map((file) => ({
-          id: file.id,
-          originalName: file.originalName,
-          mimeType: file.mimeType,
-          size: file.size,
-          compressedSize: file.compressedSize,
-          compressionRatio: file.compressionRatio,
-          isCompressed: file.isCompressed,
-          createdAt: file.createdAt
-        }))
+        data: files.map((file) => toFileClientDto(file))
       })
     } catch (error) {
       console.error('Error getting files by user:', error)
@@ -259,16 +233,7 @@ export class FileController {
 
       res.json({
         success: true,
-        data: files.map((file) => ({
-          id: file.id,
-          originalName: file.originalName,
-          mimeType: file.mimeType,
-          size: file.size,
-          compressedSize: file.compressedSize,
-          compressionRatio: file.compressionRatio,
-          isCompressed: file.isCompressed,
-          createdAt: file.createdAt
-        }))
+        data: files.map((file) => toFileClientDto(file))
       })
     } catch (error) {
       console.error('Error searching files:', error)
@@ -302,16 +267,7 @@ export class FileController {
 
       res.json({
         success: true,
-        data: result.files.map((file) => ({
-          id: file.id,
-          originalName: file.originalName,
-          mimeType: file.mimeType,
-          size: file.size,
-          compressedSize: file.compressedSize,
-          compressionRatio: file.compressionRatio,
-          isCompressed: file.isCompressed,
-          createdAt: file.createdAt
-        })),
+        data: result.files.map((file) => toFileClientDto(file)),
         pagination: {
           currentPage: result.currentPage,
           totalPages: result.totalPages,

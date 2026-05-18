@@ -14,5 +14,5 @@ export function getPublicFileUrlForClient(
     return pathTrimmed
   }
   const base = getJwtIssuer()
-  return `${base}/files/${file.id}`
+  return `${base}/api/files/${file.id}`
 }

@@ -51,7 +51,7 @@ describe.skipIf(!dbConfigured)('E2E: user avatar HTTP', () => {
     await bundle.shutdown()
   })
 
-  it('POST /api/users/:id/avatar updates profile avatar path', async () => {
+  it('POST /api/users/:id/avatar returns public url and profile avatarUrl', async () => {
     const agent = request(bundle.app)
 
     const reg = await agent.post('/auth/register').send({
@@ -68,9 +68,14 @@ describe.skipIf(!dbConfigured)('E2E: user avatar HTTP', () => {
 
     expect(res.status).toBe(201)
     expect(res.body.success).toBe(true)
+    expect(res.body.data.url).toMatch(/\/api\/files\//)
+    expect(res.body.data.avatarUrl).toBe(res.body.data.url)
+    expect(res.body.data.storagePath).toBeTruthy()
+    expect(res.body.data.url).not.toContain('/app/uploads')
 
     const profile = await agent.get(`/api/users/${userId}`)
     expect(profile.status).toBe(200)
-    expect(profile.body.data.avatarUrl).toBeTruthy()
+    expect(profile.body.data.avatarUrl).toMatch(/\/api\/files\//)
+    expect(profile.body.data.avatarUrl).not.toContain('/app/uploads')
   })
 })
