@@ -110,7 +110,7 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
           // Extract avatar URL from response (handles different response formats)
           const responseData = response.data as Record<string, unknown>
           const avatarUrl =
-            (responseData?.path as string) ||
+            (responseData?.avatarUrl as string) ||
             (responseData?.url as string) ||
             ((responseData?.user as Record<string, unknown>)
               ?.avatarUrl as string)

@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { X, Download, Trash2 } from 'lucide-react'
+import Image from 'next/image'
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/shared/lib/utils'
@@ -117,11 +118,12 @@ export const AvatarViewer: React.FC<AvatarViewerProps> = ({
         className="relative max-h-[90vh] max-w-[90vw] cursor-zoom-in"
         onClick={(e) => e.stopPropagation()}
       >
-        <img
+        <Image
           src={avatarUrl}
           alt={`${username || 'User'} avatar`}
           width={800}
           height={800}
+          unoptimized
           className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain"
         />
       </div>
