@@ -12,6 +12,10 @@ require('dotenv').config({
   path: path.join(__dirname, '../.env')
 })
 
+if (!process.env.POSTGRESQL_DIRECT_URL && process.env.POSTGRESQL_URL) {
+  process.env.POSTGRESQL_DIRECT_URL = process.env.POSTGRESQL_URL
+}
+
 const args = process.argv.slice(2)
 if (args.length === 0) {
   console.error('Usage: node scripts/load-root-env.cjs <prisma-args...>')

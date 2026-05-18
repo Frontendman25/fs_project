@@ -17,9 +17,11 @@ model User {
   username     String   @unique
   password     String   // In production, this should be hashed
   email        String?  @unique
-  avatarFileId String?  // Reference to avatar file
+  avatarFileId String?  @unique // FK to files.id (1:1 avatar)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  avatar File? @relation("UserAvatar", fields: [avatarFileId], references: [id], onDelete: SetNull)
 
   // Relationship: One user can have many refresh tokens
   refreshTokens RefreshToken[]
@@ -70,6 +72,8 @@ model File {
   cloudinaryId     String?  // Cloudinary public ID if stored in cloud
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+
+  avatarOf User? @relation("UserAvatar")
 
   // Indexes for better query performance
   @@index([originalName])

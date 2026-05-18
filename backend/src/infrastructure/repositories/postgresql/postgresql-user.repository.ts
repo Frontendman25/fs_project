@@ -1,4 +1,4 @@
-import { PrismaClient, User as PrismaUser } from '@prisma/client'
+import { Prisma, PrismaClient, User as PrismaUser } from '@prisma/client'
 
 import { IUserRepository } from '@/domain/repositories/user.repository'
 import { ILoggerService } from '@/domain/services/logger.service'
@@ -116,13 +116,9 @@ export class PostgreSQLUserRepository implements IUserRepository {
         return null
       }
 
-      // Update the user
       const updatedUser = await this.prisma.user.update({
         where: { id },
-        data: {
-          ...(userData as UpdateUserData),
-          updatedAt: new Date()
-        }
+        data: this.buildPrismaUpdateData(userData)
       })
 
       return this.mapPrismaUserToEntity(updatedUser)
@@ -185,6 +181,36 @@ export class PostgreSQLUserRepository implements IUserRepository {
       this.logger.error({ error }, 'Failed to find all users')
       throw new Error('Failed to find all users')
     }
+  }
+
+  /**
+   * Maps domain update payload to Prisma (uses FK relation for avatar).
+   */
+  private buildPrismaUpdateData(
+    userData: UpdateUserData
+  ): Prisma.UserUpdateInput {
+    const data: Prisma.UserUpdateInput = {
+      updatedAt: new Date()
+    }
+
+    if (userData.username !== undefined) {
+      data.username = userData.username
+    }
+    if (userData.password !== undefined) {
+      data.password = userData.password
+    }
+    if (userData.email !== undefined) {
+      data.email = userData.email
+    }
+    if (userData.avatarFileId !== undefined) {
+      if (userData.avatarFileId === null) {
+        data.avatar = { disconnect: true }
+      } else {
+        data.avatar = { connect: { id: userData.avatarFileId } }
+      }
+    }
+
+    return data
   }
 
   /**

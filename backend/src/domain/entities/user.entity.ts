@@ -51,5 +51,6 @@ export interface UpdateUserData {
   username?: string
   password?: string
   email?: string
-  avatarFileId?: string
+  /** Set to `null` to remove avatar link (FK-safe). */
+  avatarFileId?: string | null
 }

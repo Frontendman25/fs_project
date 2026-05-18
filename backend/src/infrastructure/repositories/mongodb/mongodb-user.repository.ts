@@ -102,14 +102,15 @@ export class MongoDBUserRepository implements IUserRepository {
    */
   async update(id: string, userData: UpdateUserData): Promise<User | null> {
     try {
-      // Prepare update data, only include fields that are provided
-      const updateData: Partial<UpdateUserData & { updatedAt: Date }> = {
+      const updateData: Record<string, unknown> = {
         updatedAt: new Date()
       }
       if (userData.username) updateData.username = userData.username
       if (userData.password) updateData.password = userData.password
       if (userData.email !== undefined) updateData.email = userData.email
-      if (userData.avatarFileId !== undefined) {
+      if (userData.avatarFileId === null) {
+        updateData.$unset = { avatarFileId: '' }
+      } else if (userData.avatarFileId !== undefined) {
         updateData.avatarFileId = userData.avatarFileId
       }
 

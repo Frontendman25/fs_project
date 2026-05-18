@@ -136,6 +136,23 @@ describe('User avatar use-cases', () => {
       expect(fileRepo.findById).toHaveBeenCalledWith(file.id)
     })
 
+    it('returns /api/files/:id url for local storage disk path', async () => {
+      const file = makeFile({
+        id: 'file-local-1',
+        path: '/app/uploads/avatar-stored.jpg',
+        storageType: 'local'
+      })
+      const user = makeUser({ avatarFileId: file.id })
+
+      vi.mocked(userRepo.findById).mockResolvedValue(user)
+      vi.mocked(fileRepo.findById).mockResolvedValue(file)
+
+      const result = await getUserWithAvatar.execute(user.id)
+
+      expect(result!.avatarUrl).toMatch(/\/api\/files\/file-local-1$/)
+      expect(result!.avatarUrl).not.toContain('/app/uploads')
+    })
+
     it('returns the user with null avatarUrl when avatar file is not found', async () => {
       const user = makeUser({ avatarFileId: 'file-orphaned' })
       vi.mocked(userRepo.findById).mockResolvedValue(user)
@@ -243,7 +260,7 @@ describe('User avatar use-cases', () => {
       await removeUserAvatar.execute('user-1')
 
       expect(userRepo.update).toHaveBeenCalledWith('user-1', {
-        avatarFileId: undefined
+        avatarFileId: null
       })
     })
 

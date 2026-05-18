@@ -5,6 +5,6 @@ export class RemoveUserAvatarUseCase {
   constructor(private readonly userRepository: IUserRepository) {}
 
   async execute(userId: string): Promise<User | null> {
-    return this.userRepository.update(userId, { avatarFileId: undefined })
+    return this.userRepository.update(userId, { avatarFileId: null })
   }
 }
