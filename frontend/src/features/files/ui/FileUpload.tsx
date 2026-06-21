@@ -1,11 +1,9 @@
 'use client'
 
 import React, { useCallback } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { Upload, File, X } from 'lucide-react'
 
-import { AppDispatch, RootState } from '../../../app/store'
-import { uploadFile } from '../../../entities/files/model/filesSlice'
+import { useUploadFileMutation } from '@/entities/files/api/files.api'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -27,8 +25,8 @@ interface FileUploadProps {
  * @param onUploadSuccess - Callback function called on successful upload
  */
 export function FileUpload({ onUploadSuccess }: FileUploadProps) {
-  const dispatch = useDispatch<AppDispatch>()
-  const { isUploading, error } = useSelector((state: RootState) => state.files)
+  const [uploadFile, { isLoading: isUploading, error }] =
+    useUploadFileMutation()
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null)
   const [dragActive, setDragActive] = React.useState(false)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
@@ -90,16 +88,14 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
     if (!selectedFile) return
 
     try {
-      const result = await dispatch(uploadFile(selectedFile))
-      if (uploadFile.fulfilled.match(result)) {
-        setSelectedFile(null)
-        if (fileInputRef.current) {
-          fileInputRef.current.value = ''
-        }
-        toast.success('File uploaded successfully!')
-        onUploadSuccess?.()
+      await uploadFile(selectedFile).unwrap()
+      setSelectedFile(null)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
       }
-    } catch (error) {
+      toast.success('File uploaded successfully!')
+      onUploadSuccess?.()
+    } catch {
       toast.error('Failed to upload file. Please try again.')
     }
   }
@@ -185,7 +181,7 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
 
         {error && (
           <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md">
-            {error}
+            {'message' in error ? error.message : 'Upload failed'}
           </div>
         )}
 

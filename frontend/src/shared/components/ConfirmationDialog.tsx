@@ -80,7 +80,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
       role="dialog"
       aria-modal="true"
       className={cn(
-        'fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm',
+        'fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm',
         className
       )}
       onClick={onClose}
@@ -125,7 +125,11 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
         <div className="flex gap-3">
           <Button
             variant="outline"
-            onClick={onClose}
+            onClick={(event) => {
+              event.stopPropagation()
+              onClose()
+            }}
+            onMouseDown={(event) => event.preventDefault()}
             data-testid={TEST_IDS.confirmationDialog.cancelButton}
             disabled={isLoading}
             className="flex-1"
@@ -134,10 +138,18 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           </Button>
           <Button
             variant={isDestructive ? 'destructive' : 'default'}
-            onClick={onConfirm}
+            onClick={(event) => {
+              event.stopPropagation()
+              onConfirm()
+            }}
+            onMouseDown={(event) => event.preventDefault()}
             data-testid={TEST_IDS.confirmationDialog.confirmButton}
             disabled={isLoading}
-            className="flex-1"
+            className={cn(
+              'flex-1',
+              isDestructive &&
+                'bg-red-500 text-white hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700'
+            )}
           >
             {isLoading ? 'Loading...' : confirmText}
           </Button>

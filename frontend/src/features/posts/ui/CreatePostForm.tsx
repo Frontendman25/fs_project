@@ -1,8 +1,7 @@
 'use client'
 
 import React, { FC, ChangeEvent, useState, FormEvent } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch } from '@/app/store'
+import { useSelector } from 'react-redux'
 import { Send, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
@@ -10,8 +9,8 @@ import { useTranslations } from 'next-intl'
 import { POST_CONSTANTS, UI_CONSTANTS } from '@/shared/constants'
 import { TEST_IDS } from '@/shared/constants'
 
-import { userSelectors } from '@/entities/user/model/userSelectors'
-import { createPost } from '@/entities/posts/model/postsSlice'
+import { selectUser } from '@/entities/auth/model/authSelectors'
+import { useCreatePostMutation } from '@/entities/posts/api/posts.api'
 
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -30,13 +29,12 @@ export const CreatePostForm: FC<CreatePostFormProps> = ({
   onSuccess,
   className = ''
 }) => {
-  const dispatch = useDispatch<AppDispatch>()
-  const user = useSelector(userSelectors.selectUser)
+  const user = useSelector(selectUser)
+  const [createPost, { isLoading: isSubmitting }] = useCreatePostMutation()
 
   const t = useTranslations('posts')
 
   const [content, setContent] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
   /**
    * Handle form submission
@@ -54,15 +52,13 @@ export const CreatePostForm: FC<CreatePostFormProps> = ({
       return
     }
 
-    setIsSubmitting(true)
-
     try {
-      await dispatch(
-        createPost({
-          userId: user.id,
-          content: content.trim()
-        })
-      )
+      // `.unwrap()` rejects on failure so the catch below actually fires —
+      // the previous thunk swallowed errors and always showed success.
+      await createPost({
+        userId: user.id,
+        content: content.trim()
+      }).unwrap()
 
       setContent('')
       toast.success(t('success.created'))
@@ -70,8 +66,6 @@ export const CreatePostForm: FC<CreatePostFormProps> = ({
       onSuccess?.()
     } catch {
       toast.error(t('error.createFailed'))
-    } finally {
-      setIsSubmitting(false)
     }
   }
 

@@ -37,7 +37,7 @@ describe.skipIf(!dbConfigured)(
       await PrismaDatabaseService.resetInstance()
     })
 
-    it('returns user with null avatarUrl when no avatar file is linked', async () => {
+    it('returns user with null avatarFile when no avatar file is linked', async () => {
       const row = await createUserRecord(prisma, {
         username: 'integration-user',
         passwordPlain: 'secret12',
@@ -49,7 +49,7 @@ describe.skipIf(!dbConfigured)(
       expect(result).not.toBeNull()
       expect(result!.username).toBe('integration-user')
       expect(result!.email).toBe('int@test.dev')
-      expect(result!.avatarUrl).toBeNull()
+      expect(result!.avatarFile).toBeNull()
     })
   }
 )

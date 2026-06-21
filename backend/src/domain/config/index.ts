@@ -4,11 +4,11 @@
  */
 
 export { PAGINATION_CONFIG, type PaginationConfig } from './pagination.config'
+export { getBackendBaseUrl } from './backend-url.config'
 export {
   RATE_LIMIT_CONFIG,
   getAuthJwtSettings,
   getJwtAudience,
-  getJwtIssuer,
   refreshTokenCookieMaxAgeMs,
   type RateLimitConfig,
   type JWTConfig,

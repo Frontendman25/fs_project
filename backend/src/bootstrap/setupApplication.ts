@@ -16,6 +16,7 @@ import { createFileRoutes } from '@/presentation/routes/file.routes'
 import { createUserRoutes } from '@/presentation/routes/user.routes'
 import { createPostRoutes } from '@/presentation/routes/post.routes'
 import { createChatRoutes } from '@/presentation/routes/chat.routes'
+import { createTranscriptDebugRoutes } from '@/presentation/routes/transcript-debug.routes'
 import { ErrorHandler } from '@/presentation/middleware/error-handler.middleware'
 import { AuthMiddleware } from '@/presentation/middleware/auth.middleware'
 
@@ -115,7 +116,7 @@ export async function setupApplication(
       origin: process.env.FRONTEND_URL || 'http://localhost:3000',
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-      allowedHeaders: ['Content-Type', 'Authorization']
+      allowedHeaders: ['Content-Type', 'Authorization', 'x-debug-token']
     })
   )
 
@@ -176,6 +177,7 @@ export async function setupApplication(
   app.use('/api', userRoutes)
   app.use('/api', postRoutes)
   app.use('/api/chat', chatRoutes)
+  app.use('/api', createTranscriptDebugRoutes())
 
   app.get('/health', async (req, res) => {
     try {
@@ -217,6 +219,7 @@ export async function setupApplication(
         users: '/api/users',
         posts: '/api/posts',
         chat: '/api/chat',
+        debugTranscript: '/api/debug/transcript',
         health: '/health'
       },
       features: []

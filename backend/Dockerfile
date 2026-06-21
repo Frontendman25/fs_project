@@ -38,6 +38,7 @@ ENV NODE_ENV=development
 
 # Non-root user for consistency with production.
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN apk add --no-cache ca-certificates netcat-openbsd
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -61,6 +62,7 @@ ENV NODE_ENV=production
 
 # Non-root user — created before copying files so chown works cheaply.
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN apk add --no-cache ca-certificates netcat-openbsd
 
 # Install production dependencies only.
 # tsc-alias and other devDeps are NOT included.

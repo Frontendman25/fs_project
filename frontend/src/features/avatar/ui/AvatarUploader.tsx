@@ -5,8 +5,11 @@ import { useDispatch } from 'react-redux'
 import { Pencil, Eye, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { updateAvatar } from '@/entities/user/model/userSlice'
-import { avatarApi } from '@/shared/api/avatar'
+import { setAvatarUrl } from '@/entities/auth/model/authSlice'
+import {
+  useUploadAvatarMutation,
+  useDeleteAvatarMutation
+} from '@/features/avatar/api/avatar.api'
 import { cn } from '@/shared/lib/utils'
 import { AvatarUploaderProps } from '../model/types'
 import { AvatarViewer } from './AvatarViewer'
@@ -53,11 +56,12 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
   const dispatch = useDispatch()
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const [loading, setLoading] = useState(false)
+  const [uploadAvatar, { isLoading: loading }] = useUploadAvatarMutation()
+  const [deleteAvatar, { isLoading: isDeleting }] = useDeleteAvatarMutation()
+
   const [error, setError] = useState<string | null>(null)
   const [isViewerOpen, setIsViewerOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
 
   // Size classes for different avatar sizes
   const sizeClasses = {
@@ -98,50 +102,45 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
         return
       }
 
-      setLoading(true)
-
       try {
         const formData = new FormData()
         formData.append('avatar', file)
 
-        const response = await avatarApi.uploadAvatar(userId, formData)
+        const result = await uploadAvatar({ userId, formData }).unwrap()
 
-        if (response.success && response.data) {
-          // Extract avatar URL from response (handles different response formats)
-          const responseData = response.data as Record<string, unknown>
-          const avatarUrl =
-            (responseData?.avatarUrl as string) ||
-            (responseData?.url as string) ||
-            ((responseData?.user as Record<string, unknown>)
-              ?.avatarUrl as string)
+        // Backend response shape is inconsistent; read all known locations.
+        const responseData = result as Record<string, unknown>
+        const newAvatarUrl =
+          (responseData?.avatarUrl as string) ||
+          (responseData?.url as string) ||
+          ((responseData?.user as Record<string, unknown>)?.avatarUrl as string)
 
-          if (avatarUrl) {
-            dispatch(updateAvatar(avatarUrl))
-            toast.success('Avatar updated', {
-              description: 'Your profile picture has been updated successfully.'
-            })
-          } else {
-            throw new Error('Avatar URL not returned by server')
-          }
-        } else {
-          throw new Error(response.error || 'Failed to upload avatar')
+        if (!newAvatarUrl) {
+          throw new Error('Avatar URL not returned by server')
         }
+
+        dispatch(setAvatarUrl(newAvatarUrl))
+        toast.success('Avatar updated', {
+          description: 'Your profile picture has been updated successfully.'
+        })
       } catch (err) {
         const errorMessage =
-          err instanceof Error ? err.message : 'Unknown error occurred'
+          err instanceof Error
+            ? err.message
+            : ((err as { message?: string })?.message ??
+              'Unknown error occurred')
         setError(errorMessage)
         toast.error('Upload failed', {
           description: errorMessage
         })
       } finally {
-        setLoading(false)
         // Clear the input
         if (inputRef.current) {
           inputRef.current.value = ''
         }
       }
     },
-    [accept, maxSize, dispatch, userId]
+    [accept, maxSize, dispatch, userId, uploadAvatar]
   )
 
   /**
@@ -150,28 +149,21 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
   const handleDeleteAvatar = useCallback(async () => {
     if (!userId) return
 
-    setIsDeleting(true)
-
     try {
-      const response = await avatarApi.deleteAvatar(userId)
-
-      if (response.success) {
-        dispatch(updateAvatar(null))
-        toast.success('Avatar deleted successfully')
-        setIsDeleteDialogOpen(false)
-      } else {
-        throw new Error(response.error || 'Failed to delete avatar')
-      }
+      await deleteAvatar(userId).unwrap()
+      dispatch(setAvatarUrl(null))
+      toast.success('Avatar deleted successfully')
+      setIsDeleteDialogOpen(false)
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : 'Unknown error occurred'
+        err instanceof Error
+          ? err.message
+          : ((err as { message?: string })?.message ?? 'Unknown error occurred')
       toast.error('Failed to delete avatar', {
         description: errorMessage
       })
-    } finally {
-      setIsDeleting(false)
     }
-  }, [userId, dispatch])
+  }, [userId, dispatch, deleteAvatar])
 
   /**
    * Triggers file input click
@@ -291,6 +283,7 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
           avatarUrl={avatarUrl}
           username={username}
           isOpen={isViewerOpen}
+          suppressClose={isDeleteDialogOpen}
           onClose={() => setIsViewerOpen(false)}
           onDelete={() => setIsDeleteDialogOpen(true)}
         />

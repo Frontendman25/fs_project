@@ -11,7 +11,7 @@ import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 
 import { useAppSelector } from '@/shared/lib/hooks'
-import { userSelectors } from '@/entities/user/model/userSelectors'
+import { selectUser } from '@/entities/auth/model/authSelectors'
 import { Button } from '@/components/ui/button'
 import { AppDispatch } from '@/app/store'
 import { logoutUser } from '@/entities/auth/model/authSlice'
@@ -21,7 +21,7 @@ import { AvatarUploader } from '@/features/avatar'
  * Dashboard page component for authenticated users
  */
 export function DashboardPage() {
-  const user = useAppSelector(userSelectors.selectUser)
+  const user = useAppSelector(selectUser)
   const dispatch = useDispatch<AppDispatch>()
   const t = useTranslations('dashboard')
 

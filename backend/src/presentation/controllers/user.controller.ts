@@ -4,6 +4,7 @@ import { Readable } from 'stream'
 
 import { FileUseCase } from '../../application/use-cases/file.use-case'
 import { toAvatarUploadClientDto } from '../mappers/file-response.mapper'
+import { toUserProfileClientDto } from '../mappers/user-response.mapper'
 import { GetUserWithAvatarUseCase } from '../../application/use-cases/user/get-user-with-avatar.use-case'
 import { UpdateUserAvatarUseCase } from '../../application/use-cases/user/update-user-avatar.use-case'
 import { RemoveUserAvatarUseCase } from '../../application/use-cases/user/remove-user-avatar.use-case'
@@ -155,14 +156,7 @@ export class UserController {
 
       res.json({
         success: true,
-        data: {
-          id: userWithAvatar.id,
-          username: userWithAvatar.username,
-          email: userWithAvatar.email,
-          avatarUrl: userWithAvatar.avatarUrl,
-          createdAt: userWithAvatar.createdAt,
-          updatedAt: userWithAvatar.updatedAt
-        }
+        data: toUserProfileClientDto(userWithAvatar, userWithAvatar.avatarFile)
       })
     } catch (error) {
       console.error('Error getting user profile:', error)

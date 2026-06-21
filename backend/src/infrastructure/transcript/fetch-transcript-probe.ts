@@ -1,0 +1,170 @@
+import { YoutubeTranscript } from 'youtube-transcript'
+
+import {
+  extractVideoId,
+  prepareTranscriptPayload,
+  toWatchUrl,
+  TranscriptProbeError,
+  type TranscriptProbeResult
+} from './youtube-utils'
+
+const SUPADATA_API = 'https://api.supadata.ai/v1/transcript'
+
+export interface TranscriptAttempt {
+  source: string
+  ok: boolean
+  durationMs: number
+  error?: string
+}
+
+export interface TranscriptProbeResponse extends TranscriptProbeResult {
+  source: string
+  host: string
+  lang: string
+  attempts: TranscriptAttempt[]
+}
+
+function getSupadataApiKey(): string | undefined {
+  const key = process.env.SUPADATA_API_KEY?.trim()
+  if (!key || key.includes('your_')) return undefined
+  return key
+}
+
+async function tryYoutubeTranscript(
+  videoId: string,
+  lang: string
+): Promise<TranscriptProbeResult> {
+  const segments = await YoutubeTranscript.fetchTranscript(
+    toWatchUrl(videoId),
+    {
+      lang
+    }
+  )
+
+  const rawText = segments.map((segment) => segment.text).join(' ')
+  return prepareTranscriptPayload(rawText, videoId)
+}
+
+async function trySupadata(
+  videoUrl: string,
+  videoId: string,
+  lang: string
+): Promise<TranscriptProbeResult> {
+  const apiKey = getSupadataApiKey()
+  if (!apiKey) {
+    throw new TranscriptProbeError(
+      'SUPADATA_API_KEY not configured',
+      'FETCH_FAILED'
+    )
+  }
+
+  const params = new URLSearchParams({
+    url: toWatchUrl(videoId),
+    lang,
+    text: 'true',
+    mode: 'auto'
+  })
+
+  const response = await fetch(`${SUPADATA_API}?${params.toString()}`, {
+    headers: { 'x-api-key': apiKey },
+    cache: 'no-store'
+  })
+
+  if (!response.ok) {
+    throw new TranscriptProbeError(
+      `Supadata HTTP ${response.status}`,
+      response.status === 422 ? 'NO_TRANSCRIPT' : 'FETCH_FAILED'
+    )
+  }
+
+  const data = (await response.json()) as { content?: string }
+  const text = data.content?.trim()
+  if (!text) {
+    throw new TranscriptProbeError(
+      'Supadata returned empty content',
+      'NO_TRANSCRIPT'
+    )
+  }
+
+  return prepareTranscriptPayload(text, videoId)
+}
+
+async function runAttempt(
+  source: string,
+  run: () => Promise<TranscriptProbeResult>
+): Promise<{ attempt: TranscriptAttempt; result?: TranscriptProbeResult }> {
+  const started = Date.now()
+
+  try {
+    const result = await run()
+    return {
+      attempt: { source, ok: true, durationMs: Date.now() - started },
+      result
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    return {
+      attempt: {
+        source,
+        ok: false,
+        durationMs: Date.now() - started,
+        error: message
+      }
+    }
+  }
+}
+
+/**
+ * Minimal transcript probe for Render IP testing.
+ * Tries youtube-transcript directly, then Supadata if configured.
+ */
+export async function probeTranscript(
+  videoUrl: string,
+  lang = 'en'
+): Promise<TranscriptProbeResponse> {
+  const videoId = extractVideoId(videoUrl)
+  if (!videoId) {
+    throw new TranscriptProbeError('Invalid YouTube URL', 'INVALID_URL')
+  }
+
+  const attempts: TranscriptAttempt[] = []
+  const strategies: Array<{
+    source: string
+    run: () => Promise<TranscriptProbeResult>
+  }> = [
+    {
+      source: 'youtube-transcript',
+      run: () => tryYoutubeTranscript(videoId, lang)
+    }
+  ]
+
+  if (getSupadataApiKey()) {
+    strategies.push({
+      source: 'supadata',
+      run: () => trySupadata(videoUrl, videoId, lang)
+    })
+  }
+
+  for (const strategy of strategies) {
+    const { attempt, result } = await runAttempt(strategy.source, strategy.run)
+    attempts.push(attempt)
+
+    if (result) {
+      return {
+        ...result,
+        source: strategy.source,
+        host: process.env.RENDER
+          ? 'render'
+          : (process.env.NODE_ENV ?? 'unknown'),
+        lang,
+        attempts
+      }
+    }
+  }
+
+  throw new TranscriptProbeError(
+    'All transcript strategies failed on this host',
+    'FETCH_FAILED',
+    attempts
+  )
+}

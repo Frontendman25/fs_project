@@ -8,7 +8,11 @@ import {
   bootstrapSession,
   clearAuth
 } from '../../entities/auth/model/authSlice'
+import { baseApi } from '@/shared/api/base-api'
 import { setSessionExpiredHandler } from '@/shared/lib/auth/access-token.store'
+
+/** Survives React Strict Mode remount so bootstrap runs once per page load. */
+let bootstrapPromise: Promise<unknown> | null = null
 
 interface AuthProviderProps {
   children: ReactNode
@@ -24,12 +28,16 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     setSessionExpiredHandler(() => {
       dispatch(clearAuth())
+      dispatch(baseApi.util.resetApiState())
     })
     return () => setSessionExpiredHandler(null)
   }, [dispatch])
 
   useEffect(() => {
-    void dispatch(bootstrapSession()).finally(() => {
+    if (!bootstrapPromise) {
+      bootstrapPromise = dispatch(bootstrapSession())
+    }
+    void bootstrapPromise.finally(() => {
       setIsInitialized(true)
     })
   }, [dispatch])

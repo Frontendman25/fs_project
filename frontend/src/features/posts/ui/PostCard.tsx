@@ -1,14 +1,16 @@
 'use client'
 
 import React, { ChangeEvent, FC, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { Edit, Trash2, Save, X, User } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 
-import { AppDispatch } from '@/app/store'
-import { userSelectors } from '@/entities/user/model/userSelectors'
-import { updatePost, deletePost } from '@/entities/posts/model/postsSlice'
+import { selectUser } from '@/entities/auth/model/authSelectors'
+import {
+  useUpdatePostMutation,
+  useDeletePostMutation
+} from '@/entities/posts/api/posts.api'
 
 import { PostWithUser } from '@/shared/api/posts'
 
@@ -28,18 +30,17 @@ interface PostCardProps {
  * Follows Feature-Sliced Design architecture
  */
 export const PostCard: FC<PostCardProps> = ({ post, className = '' }) => {
-  const dispatch = useDispatch<AppDispatch>()
-  const user = useSelector(userSelectors.selectUser)
+  const user = useSelector(selectUser)
+  const [updatePost, { isLoading: isSubmitting }] = useUpdatePostMutation()
+  const [deletePost] = useDeletePostMutation()
 
   const t = useTranslations('posts')
 
   const [isEditing, setIsEditing] = useState(false)
   const [editContent, setEditContent] = useState(post.content)
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Check if current user owns this post
-  const isOwner =
-    user && typeof user === 'object' && 'id' in user && user.id === post.userId
+  const isOwner = Boolean(user && user.id === post.userId)
 
   /**
    * Handle post update
@@ -52,26 +53,20 @@ export const PostCard: FC<PostCardProps> = ({ post, className = '' }) => {
       return
     }
 
-    setIsSubmitting(true)
-
     try {
-      await dispatch(
-        updatePost({
-          id: post.id,
-          data: { content: editContent.trim() },
-          userId: user.id
-        })
-      )
+      await updatePost({
+        id: post.id,
+        data: { content: editContent.trim() },
+        userId: user.id
+      }).unwrap()
 
       setIsEditing(false)
       toast.success(t('success.updated'))
     } catch {
       toast.error(t('error.updateFailed'))
-    } finally {
-      setIsSubmitting(false)
     }
   }
-  console.log('post in post card', post)
+
   /**
    * Handle post deletion
    */
@@ -79,7 +74,7 @@ export const PostCard: FC<PostCardProps> = ({ post, className = '' }) => {
     if (!isOwner || !user) return
 
     try {
-      await dispatch(deletePost(post.id))
+      await deletePost(post.id).unwrap()
 
       toast.success(t('success.deleted'))
     } catch {

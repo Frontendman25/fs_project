@@ -3,21 +3,19 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query'
 
+import { baseApi } from '@/shared/api/base-api'
 import { authReducer } from '@/entities/auth/model/authSlice'
-import { filesReducer } from '@/entities/files/model/filesSlice'
-import { userReducer } from '@/entities/user/model/userSlice'
-import { postsReducer } from '@/entities/posts/model/postsSlice'
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
-    files: filesReducer,
-    user: userReducer,
-    posts: postsReducer
+    [baseApi.reducerPath]: baseApi.reducer
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware()
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(baseApi.middleware)
 })
 
+// Enables refetchOnFocus / refetchOnReconnect for RTK Query endpoints that opt in.
 setupListeners(store.dispatch)
 
 export type RootState = ReturnType<typeof store.getState>

@@ -1,20 +1,10 @@
 'use client'
 
-import React, { FC, useEffect, useCallback } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import React, { FC, useCallback, useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
-import { AppDispatch } from '@/app/store'
-
-import {
-  selectPosts,
-  selectPostsLoading,
-  selectPostsError,
-  selectHasMorePosts,
-  selectNextCursor
-} from '@/entities/posts/model/postsSelectors'
-import { getPosts, clearError } from '@/entities/posts/model/postsSlice'
+import { useGetPostsQuery } from '@/entities/posts/api/posts.api'
 
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -27,68 +17,51 @@ interface PostListProps {
   className?: string
 }
 
+const PAGE_LIMIT = 20
+
 /**
- * PostList component - Displays a list of posts with pagination
- * Follows Feature-Sliced Design architecture
+ * PostList component - Displays a list of posts with cursor pagination.
+ * Server state is owned by RTK Query; cursor lives in local state to drive
+ * the accumulating query cache (see posts.api merge strategy).
  */
 export const PostList: FC<PostListProps> = ({ userId, className = '' }) => {
-  const dispatch = useDispatch<AppDispatch>()
-
   const t = useTranslations('posts')
 
-  const posts = useSelector(selectPosts)
-  const loading = useSelector(selectPostsLoading)
-  const error = useSelector(selectPostsError)
-  const hasMore = useSelector(selectHasMorePosts)
-  const nextCursor = useSelector(selectNextCursor)
+  const [cursor, setCursor] = useState<string | undefined>(undefined)
 
-  /**
-   * Load initial posts
-   */
+  // Reset pagination when switching the user filter so we never carry a cursor
+  // from a different list into a fresh cache entry.
   useEffect(() => {
-    // Only fetch posts if we have a valid userId or if we want all posts (no userId filter)
-    if (userId !== undefined) {
-      dispatch(getPosts({ userId, limit: 20 }))
-    } else {
-      // Fetch all posts if no specific userId is provided
-      dispatch(getPosts({ limit: 20 }))
-    }
-  }, [dispatch, userId])
+    setCursor(undefined)
+  }, [userId])
 
-  /**
-   * Load more posts for pagination
-   */
+  const { data, isFetching, isError, error, refetch } = useGetPostsQuery({
+    userId,
+    cursor,
+    limit: PAGE_LIMIT
+  })
+
+  const posts = data?.data ?? []
+  const hasMore = data?.pagination.hasMore ?? false
+  const nextCursor = data?.pagination.nextCursor
+
   const handleLoadMore = useCallback(() => {
-    if (hasMore && nextCursor && !loading) {
-      dispatch(
-        getPosts({
-          userId,
-          cursor: nextCursor,
-          limit: 20,
-          append: true
-        })
-      )
+    if (hasMore && nextCursor && !isFetching) {
+      setCursor(nextCursor)
     }
-  }, [dispatch, userId, hasMore, nextCursor, loading])
+  }, [hasMore, nextCursor, isFetching])
 
-  /**
-   * Clear error when component unmounts
-   */
-  useEffect(() => {
-    return () => {
-      dispatch(clearError())
-    }
-  }, [dispatch])
-
-  if (error) {
+  if (isError) {
+    const message =
+      error && 'message' in error ? error.message : 'Unknown error'
     return (
       <Card className={className}>
         <CardContent className="p-6">
           <div className="text-center text-red-600">
-            <p>Error loading posts: {error}</p>
+            <p>Error loading posts: {message}</p>
             <Button
               variant="outline"
-              onClick={() => dispatch(getPosts({ userId, limit: 20 }))}
+              onClick={() => refetch()}
               className="mt-4"
             >
               Try Again
@@ -101,19 +74,8 @@ export const PostList: FC<PostListProps> = ({ userId, className = '' }) => {
 
   return (
     <div className={className}>
-      {/* Header */}
-      {/* <CardHeader className="flex justify-end mb-6">
-        {!isShowCreateForm &&(
-          <Button onClick={onCreatePost} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Create a Post
-          </Button>
-        )}
-      </CardHeader> */}
-
-      {/* Posts List */}
       <div className="space-y-4">
-        {posts.length === 0 && !loading ? (
+        {posts.length === 0 && !isFetching ? (
           <Card>
             <CardContent className="p-6 text-center text-gray-500">
               <p>{t('noPosts')}</p>
@@ -123,8 +85,7 @@ export const PostList: FC<PostListProps> = ({ userId, className = '' }) => {
           posts.map((post) => <PostCard key={post.id} post={post} />)
         )}
 
-        {/* Loading indicator */}
-        {loading && (
+        {isFetching && (
           <Card>
             <CardContent className="p-6 text-center">
               <Loader2 className="h-6 w-6 animate-spin mx-auto" />
@@ -133,8 +94,7 @@ export const PostList: FC<PostListProps> = ({ userId, className = '' }) => {
           </Card>
         )}
 
-        {/* Load more button */}
-        {hasMore && !loading && posts.length > 0 && (
+        {hasMore && !isFetching && posts.length > 0 && (
           <div className="text-center">
             <Button
               variant="outline"

@@ -3,51 +3,7 @@
  * Following Clean Architecture - Domain layer contains business rules and constants
  */
 
-function firstNonEmptyTrimmed(
-  values: readonly (string | undefined)[]
-): string | undefined {
-  for (const v of values) {
-    const t = v?.trim()
-    if (t) {
-      return t
-    }
-  }
-  return undefined
-}
-
-function stripTrailingSlash(url: string): string {
-  const t = url.trim()
-  if (t.length <= 1) {
-    return t
-  }
-  return t.replace(/\/+$/, '')
-}
-
-/**
- * Public base URL of this API — used as JWT `iss` (issuer).
- * Prefer an env var your host sets (Render: `RENDER_EXTERNAL_URL`) or an explicit `BACKEND_URL`.
- */
-export function getJwtIssuer(): string {
-  const fromEnv = firstNonEmptyTrimmed([
-    process.env.BACKEND_URL,
-    process.env.API_URL,
-    process.env.RENDER_EXTERNAL_URL,
-    process.env.PUBLIC_URL
-  ])
-  if (fromEnv) {
-    return stripTrailingSlash(fromEnv)
-  }
-
-  const port = process.env.PORT?.trim() || '3100'
-  const nodeEnv = process.env.NODE_ENV
-
-  if (nodeEnv === 'development' || nodeEnv === 'test') {
-    return stripTrailingSlash(`http://localhost:${port}`)
-  }
-
-  // Production without explicit URL: stable localhost issuer (set BACKEND_URL in deploy)
-  return stripTrailingSlash(`http://localhost:${port}`)
-}
+import { normalizeUrl } from './backend-url.config'
 
 /**
  * Frontend origin — JWT `aud` (audience), aligned with CORS `FRONTEND_URL`.
@@ -56,7 +12,7 @@ export function getJwtIssuer(): string {
 export function getJwtAudience(): string {
   const raw = process.env.FRONTEND_URL?.trim()
   if (raw) {
-    return stripTrailingSlash(raw)
+    return normalizeUrl(raw)
   }
 
   if (process.env.NODE_ENV === 'production') {

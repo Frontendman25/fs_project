@@ -11,11 +11,8 @@ import { IRefreshTokenRepository } from '@/domain/repositories/refresh-token.rep
 import { User, CreateUserData } from '@/domain/entities/user.entity'
 import { RefreshToken } from '@/domain/entities/refresh-token.entity'
 import { SecurityViolationError } from '@/domain/errors/app.error'
-import {
-  getAuthJwtSettings,
-  getJwtAudience,
-  getJwtIssuer
-} from '@/domain/config/auth.config'
+import { getAuthJwtSettings, getJwtAudience } from '@/domain/config/auth.config'
+import { getBackendBaseUrl } from '@/domain/config/backend-url.config'
 
 /** Payload returned after access JWT verification (strict shape for route handlers). */
 export type AccessTokenClaims = {
@@ -238,7 +235,7 @@ export class AuthUseCase {
    */
   async verifyAccessToken(accessToken: string): Promise<AccessTokenClaims> {
     const verifyOptions: VerifyOptions = {
-      issuer: getJwtIssuer(),
+      issuer: getBackendBaseUrl(),
       audience: getJwtAudience()
     }
 
@@ -332,7 +329,7 @@ export class AuthUseCase {
     const signOptions: SignOptions = {
       expiresIn: getAuthJwtSettings()
         .accessTokenExpiresIn as SignOptions['expiresIn'],
-      issuer: getJwtIssuer(),
+      issuer: getBackendBaseUrl(),
       audience: getJwtAudience()
     }
 

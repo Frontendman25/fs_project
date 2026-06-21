@@ -1,15 +1,10 @@
 'use client'
 
-import React, { FC, useState, useEffect } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import React, { FC, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { Plus, X } from 'lucide-react'
 
-import { POST_CONSTANTS } from '@/shared/constants'
-
-import { AppDispatch } from '@/app/store'
-
-import { userSelectors } from '@/entities/user/model/userSelectors'
-import { getPosts } from '@/entities/posts/model/postsSlice'
+import { selectUser } from '@/entities/auth/model/authSelectors'
 
 import { Button } from '@/components/ui/button'
 
@@ -21,15 +16,9 @@ import { CreatePostForm } from '@/features/posts/ui/CreatePostForm'
  * Follows Feature-Sliced Design architecture
  */
 export const PostsPage: FC = () => {
-  const dispatch = useDispatch<AppDispatch>()
-  const user = useSelector(userSelectors.selectUser)
+  const user = useSelector(selectUser)
 
   const [isShowCreateForm, setIsShowCreateForm] = useState(false)
-
-  // Fetch posts on component mount
-  useEffect(() => {
-    dispatch(getPosts({ limit: POST_CONSTANTS.DEFAULT_POST_LIMIT }))
-  }, [dispatch])
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">

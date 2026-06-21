@@ -112,18 +112,18 @@ describe('User avatar use-cases', () => {
       expect(userRepo.findById).toHaveBeenCalledWith('nonexistent')
     })
 
-    it('returns the user with null avatarUrl when user has no avatarFileId', async () => {
+    it('returns the user with null avatarFile when user has no avatarFileId', async () => {
       const user = makeUser({ avatarFileId: undefined })
       vi.mocked(userRepo.findById).mockResolvedValue(user)
 
       const result = await getUserWithAvatar.execute(user.id)
 
       expect(result).not.toBeNull()
-      expect(result!.avatarUrl).toBeNull()
+      expect(result!.avatarFile).toBeNull()
       expect(fileRepo.findById).not.toHaveBeenCalled()
     })
 
-    it('returns the user with avatarUrl when avatar file exists', async () => {
+    it('returns the user with avatarFile when avatar file exists', async () => {
       const file = makeFile({ path: 'https://cdn.example.com/avatar.jpg' })
       const user = makeUser({ avatarFileId: file.id })
 
@@ -132,38 +132,21 @@ describe('User avatar use-cases', () => {
 
       const result = await getUserWithAvatar.execute(user.id)
 
-      expect(result!.avatarUrl).toBe('https://cdn.example.com/avatar.jpg')
+      expect(result!.avatarFile).toStrictEqual(file)
       expect(fileRepo.findById).toHaveBeenCalledWith(file.id)
     })
 
-    it('returns /api/files/:id url for local storage disk path', async () => {
-      const file = makeFile({
-        id: 'file-local-1',
-        path: '/app/uploads/avatar-stored.jpg',
-        storageType: 'local'
-      })
-      const user = makeUser({ avatarFileId: file.id })
-
-      vi.mocked(userRepo.findById).mockResolvedValue(user)
-      vi.mocked(fileRepo.findById).mockResolvedValue(file)
-
-      const result = await getUserWithAvatar.execute(user.id)
-
-      expect(result!.avatarUrl).toMatch(/\/api\/files\/file-local-1$/)
-      expect(result!.avatarUrl).not.toContain('/app/uploads')
-    })
-
-    it('returns the user with null avatarUrl when avatar file is not found', async () => {
+    it('returns the user with null avatarFile when avatar file is not found', async () => {
       const user = makeUser({ avatarFileId: 'file-orphaned' })
       vi.mocked(userRepo.findById).mockResolvedValue(user)
       vi.mocked(fileRepo.findById).mockResolvedValue(null)
 
       const result = await getUserWithAvatar.execute(user.id)
 
-      expect(result!.avatarUrl).toBeNull()
+      expect(result!.avatarFile).toBeNull()
     })
 
-    it('returns the user with null avatarUrl and does not throw when fileRepo rejects', async () => {
+    it('returns the user with null avatarFile and does not throw when fileRepo rejects', async () => {
       const user = makeUser({ avatarFileId: 'file-1' })
       vi.mocked(userRepo.findById).mockResolvedValue(user)
       vi.mocked(fileRepo.findById).mockRejectedValue(
@@ -172,7 +155,7 @@ describe('User avatar use-cases', () => {
 
       await expect(getUserWithAvatar.execute(user.id)).resolves.toMatchObject({
         id: user.id,
-        avatarUrl: null
+        avatarFile: null
       })
     })
 

@@ -4,14 +4,14 @@ import { Provider } from 'react-redux'
 import { configureStore } from '@reduxjs/toolkit'
 
 import { type RootState } from '@/app/store'
+import { baseApi } from '@/shared/api/base-api'
 import { authReducer } from '@/entities/auth/model/authSlice'
-import { filesReducer } from '@/entities/files/model/filesSlice'
-import { userReducer } from '@/entities/user/model/userSlice'
-import { postsReducer } from '@/entities/posts/model/postsSlice'
 
 // ─── Store factory ────────────────────────────────────────────────────────────
 //
 // Creates a fresh store per test to prevent state leaking between tests.
+// Mirrors the production store (auth slice + RTK Query api) so component hooks
+// (useGetPostsQuery, mutations, …) work against MSW.
 type DeepPartial<T> = {
   [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K]
 }
@@ -22,10 +22,10 @@ export function makeTestStore(preloadedState?: TestPreloadedState) {
   return configureStore({
     reducer: {
       auth: authReducer,
-      files: filesReducer,
-      user: userReducer,
-      posts: postsReducer
+      [baseApi.reducerPath]: baseApi.reducer
     },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware().concat(baseApi.middleware),
     preloadedState: preloadedState as RootState
   })
 }

@@ -1,5 +1,6 @@
 import type { File } from '@/domain/entities/file.entity'
-import { getPublicFileUrlForClient } from '@/domain/config/file-url.config'
+
+import { toPublicFileUrl } from './file-public-url.mapper'
 
 /** File fields safe to return to API clients (no raw disk path as `url`). */
 export interface FileClientDto {
@@ -13,7 +14,7 @@ export interface FileClientDto {
   storageType: File['storageType']
   /** Internal storage location (disk path or provider URL in DB). Not for `<img src>`. */
   storagePath: string
-  /** Client-loadable URL (`/files/:id` or Cloudinary HTTPS). */
+  /** Client-loadable URL (`/api/files/:id` or Cloudinary HTTPS). */
   url: string
   uploadedBy?: string
   checksum?: string
@@ -35,7 +36,7 @@ export function toFileClientDto(
     isCompressed: file.isCompressed,
     storageType: file.storageType,
     storagePath: file.path,
-    url: getPublicFileUrlForClient(file),
+    url: toPublicFileUrl(file),
     uploadedBy: file.uploadedBy,
     createdAt: file.createdAt
   }

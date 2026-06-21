@@ -1,0 +1,84 @@
+import { Request, Response } from 'express'
+import { z } from 'zod'
+
+import {
+  probeTranscript,
+  type TranscriptProbeResponse
+} from '@/infrastructure/transcript/fetch-transcript-probe'
+import { TranscriptProbeError } from '@/infrastructure/transcript/youtube-utils'
+import { ForbiddenError } from '@/domain/errors/app.error'
+import { asyncHandler } from '@/utils/asyncHandler'
+
+const probeBodySchema = z.object({
+  videoUrl: z.string().min(1, 'videoUrl is required'),
+  lang: z
+    .string()
+    .trim()
+    .regex(
+      /^[a-z]{2}(-[A-Za-z]{2})?$/,
+      'lang must be an ISO language code (e.g. fr, de)'
+    )
+    .optional()
+})
+
+function assertDebugToken(req: Request): void {
+  const expected = process.env.DEBUG_TRANSCRIPT_TOKEN?.trim()
+  if (!expected) {
+    throw new ForbiddenError(
+      'DEBUG_TRANSCRIPT_TOKEN is not configured on this server'
+    )
+  }
+
+  const provided =
+    req.header('x-debug-token')?.trim() ??
+    req
+      .header('authorization')
+      ?.replace(/^Bearer\s+/i, '')
+      .trim()
+
+  if (!provided || provided !== expected) {
+    throw new ForbiddenError('Invalid debug token')
+  }
+}
+
+export class TranscriptDebugController {
+  probe = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    assertDebugToken(req)
+
+    const parsed = probeBodySchema.safeParse(req.body)
+    if (!parsed.success) {
+      res.status(400).json({
+        success: false,
+        error: parsed.error.issues[0]?.message ?? 'Validation failed'
+      })
+      return
+    }
+
+    try {
+      const data: TranscriptProbeResponse = await probeTranscript(
+        parsed.data.videoUrl,
+        parsed.data.lang ?? 'en'
+      )
+
+      res.status(200).json({
+        success: true,
+        message: 'Transcript probe succeeded',
+        data
+      })
+    } catch (error) {
+      if (error instanceof TranscriptProbeError) {
+        res.status(error.code === 'INVALID_URL' ? 400 : 502).json({
+          success: false,
+          error: error.message,
+          code: error.code,
+          ...(error.attempts ? { attempts: error.attempts } : {})
+        })
+        return
+      }
+
+      throw error
+    }
+  })
+}
+
+export const transcriptDebugController = new TranscriptDebugController()

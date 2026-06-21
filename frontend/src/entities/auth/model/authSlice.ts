@@ -3,7 +3,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 
 import { authApi } from '@/shared/api/auth'
-import { userApi } from '@/shared/api/user'
+import { baseApi } from '@/shared/api/base-api'
 import { User, LoginRequest, RegisterRequest } from '@/shared/types/api'
 import {
   clearAccessToken,
@@ -11,7 +11,6 @@ import {
 } from '@/shared/lib/auth/access-token.store'
 import { isAuthSessionInvalidError } from '@/shared/lib/auth/refresh-error'
 import { silentRefreshAccessToken } from '@/shared/lib/auth/silent-refresh'
-import { setUser as setUserEntity } from '@/entities/user/model/userSlice'
 
 interface AuthState {
   user: User | null
@@ -30,22 +29,12 @@ const initialState: AuthState = {
 // Async thunks
 export const loginUser = createAsyncThunk(
   'auth/login',
-  async (credentials: LoginRequest, { rejectWithValue, dispatch }) => {
+  async (credentials: LoginRequest, { rejectWithValue }) => {
     try {
       const response = await authApi.login(credentials)
 
       if (response.success && response.data) {
         setAccessToken(response.data.accessToken)
-
-        // Mirror user data to user slice (convert User to UserEntity)
-        const userEntity = {
-          id: response.data.user.id,
-          username: response.data.user.username,
-          email: response.data.user.email,
-          avatarUrl: response.data.user.avatarUrl
-        }
-        dispatch(setUserEntity(userEntity))
-
         return response.data.user
       }
 
@@ -60,19 +49,11 @@ export const loginUser = createAsyncThunk(
 
 export const registerUser = createAsyncThunk(
   'auth/register',
-  async (userData: RegisterRequest, { rejectWithValue, dispatch }) => {
+  async (userData: RegisterRequest, { rejectWithValue }) => {
     try {
       const response = await authApi.register(userData)
 
       if (response.success && response.data) {
-        // Mirror user data to user slice (convert User to UserEntity)
-        const userEntity = {
-          id: response.data.user.id,
-          username: response.data.user.username,
-          email: response.data.user.email,
-          avatarUrl: response.data.user.avatarUrl
-        }
-        dispatch(setUserEntity(userEntity))
         return response.data.user
       }
 
@@ -107,37 +88,14 @@ export const bootstrapSession = createAsyncThunk(
 
 export const fetchUserProfile = createAsyncThunk(
   'auth/fetchProfile',
-  async (_, { rejectWithValue, dispatch }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      // First get basic profile from auth endpoint
-      const authResponse = await authApi.getProfile()
-      if (!authResponse.success || !authResponse.data) {
-        throw new Error(authResponse.message || 'Failed to fetch profile')
+      const response = await authApi.getProfile()
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to fetch profile')
       }
 
-      // Then get profile with avatar URL from user endpoint
-      const userResponse = await userApi.getUserProfile(authResponse.data.id)
-      if (userResponse.success && userResponse.data) {
-        // Mirror user data with avatar to user slice (convert User to UserEntity)
-        const userEntity = {
-          id: userResponse.data.id,
-          username: userResponse.data.username,
-          email: userResponse.data.email,
-          avatarUrl: userResponse.data.avatarUrl
-        }
-        dispatch(setUserEntity(userEntity))
-        return userResponse.data
-      }
-
-      // Fallback to auth profile if user endpoint fails (convert User to UserEntity)
-      const userEntity = {
-        id: authResponse.data.id,
-        username: authResponse.data.username,
-        email: authResponse.data.email,
-        avatarUrl: authResponse.data.avatarUrl
-      }
-      dispatch(setUserEntity(userEntity))
-      return authResponse.data
+      return response.data
     } catch (error) {
       return rejectWithValue(
         error instanceof Error ? error.message : 'Failed to fetch profile'
@@ -153,15 +111,13 @@ export const logoutUser = createAsyncThunk(
       await authApi.logout()
       clearAccessToken()
 
-      // Clear user data from user slice
-      dispatch(setUserEntity(null))
+      // Drop all cached server-state so a different user never sees stale data.
+      dispatch(baseApi.util.resetApiState())
 
       return true
     } catch (error) {
       clearAccessToken()
-
-      // Clear user data from user slice even on error
-      dispatch(setUserEntity(null))
+      dispatch(baseApi.util.resetApiState())
 
       return rejectWithValue(
         error instanceof Error ? error.message : 'Logout failed'
@@ -198,15 +154,16 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null
     },
-    setUser: (state, action: PayloadAction<User>) => {
-      state.user = action.payload
-      state.isAuthenticated = true
-    },
     clearAuth: (state) => {
       clearAccessToken()
       state.user = null
       state.isAuthenticated = false
       state.error = null
+    },
+    setAvatarUrl: (state, action: PayloadAction<string | null>) => {
+      if (state.user) {
+        state.user = { ...state.user, avatarUrl: action.payload }
+      }
     }
   },
   extraReducers: (builder) => {
@@ -299,5 +256,5 @@ const authSlice = createSlice({
   }
 })
 
-export const { clearError, setUser, clearAuth } = authSlice.actions
+export const { clearError, clearAuth, setAvatarUrl } = authSlice.actions
 export const authReducer = authSlice.reducer

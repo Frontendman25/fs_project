@@ -1,6 +1,6 @@
-import { getPublicFileUrlForClient } from '@/domain/config/file-url.config'
 import { IUserRepository } from '@/domain/repositories/user.repository'
 import { IFileRepository } from '@/domain/repositories/file.repository'
+import type { File } from '@/domain/entities/file.entity'
 
 import { createLogger } from '@/infrastructure/utils/logger'
 
@@ -20,13 +20,11 @@ export class GetUserWithAvatarUseCase {
       return null
     }
 
-    let avatarUrl: string | null = null
+    let avatarFile: File | null = null
     if (user.avatarFileId) {
       try {
-        const avatarFile = await this.fileRepository.findById(user.avatarFileId)
-        if (avatarFile) {
-          avatarUrl = getPublicFileUrlForClient(avatarFile)
-        }
+        avatarFile =
+          (await this.fileRepository.findById(user.avatarFileId)) ?? null
       } catch (error) {
         logger.warn({ err: error, userId }, 'Failed to get avatar for user')
       }
@@ -34,7 +32,7 @@ export class GetUserWithAvatarUseCase {
 
     return {
       ...user,
-      avatarUrl
+      avatarFile
     }
   }
 }

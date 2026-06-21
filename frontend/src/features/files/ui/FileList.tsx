@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect, FormEvent } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useState, FormEvent } from 'react'
 import {
   Search,
   Download,
@@ -12,15 +11,11 @@ import {
   Filter
 } from 'lucide-react'
 
-import { AppDispatch, RootState } from '../../../app/store'
 import {
-  fetchFiles,
-  deleteFile,
-  downloadFile,
-  setSearchQuery,
-  setSelectedFileType,
-  clearError
-} from '../../../entities/files/model/filesSlice'
+  useGetFilesQuery,
+  useDeleteFileMutation
+} from '@/entities/files/api/files.api'
+import { downloadFileToDisk } from '@/shared/api/files'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -29,44 +24,57 @@ import {
   formatDate,
   getFileIcon,
   truncateText
-} from '../../../shared/lib/utils'
+} from '@/shared/lib/utils'
 import { toast } from 'sonner'
-import { FileMetadata } from '@/shared/types/api'
 
 interface FileListProps {
   onFileSelect?: (fileId: string) => void
 }
 
+const PAGE_LIMIT = 10
+
+const fileTypes = [
+  { value: '', label: 'All Files' },
+  { value: 'image/', label: 'Images' },
+  { value: 'application/pdf', label: 'PDF' },
+  { value: 'text/', label: 'Text Files' },
+  { value: 'application/msword', label: 'Documents' }
+]
+
 /**
- * File list component for displaying and managing user files
- * @param onFileSelect - Callback function called when a file is selected
+ * File list component for displaying and managing user files.
+ * Server state via RTK Query; search/filter/page are local UI state.
  */
 export function FileList({ onFileSelect }: FileListProps) {
-  const dispatch = useDispatch<AppDispatch>()
-  const { files, isLoading, error, pagination, searchQuery, selectedFileType } =
-    useSelector((state: RootState) => state.files)
+  const [page, setPage] = useState(1)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedFileType, setSelectedFileType] = useState('')
 
-  const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery)
+  const { data, isFetching, isError, error } = useGetFilesQuery({
+    page,
+    limit: PAGE_LIMIT
+  })
+  const [deleteFile] = useDeleteFileMutation()
 
-  useEffect(() => {
-    dispatch(fetchFiles({ page: 1, limit: 10 }))
-  }, [dispatch])
-
-  useEffect(() => {
-    dispatch(clearError())
-  }, [dispatch])
+  const files = data?.files ?? []
+  const pagination = {
+    page: data?.page ?? page,
+    totalPages: data?.totalPages ?? 1,
+    total: data?.total ?? 0
+  }
+  const errorMessage =
+    isError && error && 'message' in error ? error.message : null
 
   const handleSearch = (event: FormEvent) => {
     event.preventDefault()
-    dispatch(setSearchQuery(localSearchQuery))
-    // Implement search logic here
+    // Server-side search is not wired yet; kept as local state for the input.
   }
 
   const handleDownload = async (fileId: string, filename: string) => {
     try {
-      await dispatch(downloadFile({ fileId, filename }))
+      await downloadFileToDisk(fileId, filename)
       toast.success(`Downloading ${filename}`)
-    } catch (error) {
+    } catch {
       toast.error('Failed to download file. Please try again.')
     }
   }
@@ -78,24 +86,12 @@ export function FileList({ onFileSelect }: FileListProps) {
     if (!confirmed) return
 
     try {
-      await dispatch(deleteFile(fileId))
+      await deleteFile(fileId).unwrap()
       toast.success('File has been deleted successfully.')
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete file. Please try again.')
     }
   }
-
-  const handlePageChange = (page: number) => {
-    dispatch(fetchFiles({ page, limit: 10 }))
-  }
-
-  const fileTypes = [
-    { value: '', label: 'All Files' },
-    { value: 'image/', label: 'Images' },
-    { value: 'application/pdf', label: 'PDF' },
-    { value: 'text/', label: 'Text Files' },
-    { value: 'application/msword', label: 'Documents' }
-  ]
 
   return (
     <Card className="w-full">
@@ -110,8 +106,8 @@ export function FileList({ onFileSelect }: FileListProps) {
           <form onSubmit={handleSearch} className="flex-1 flex gap-2">
             <Input
               placeholder="Search files..."
-              value={localSearchQuery}
-              onChange={(e) => setLocalSearchQuery(e.target.value)}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1"
             />
             <Button type="submit" variant="outline" size="icon">
@@ -123,7 +119,7 @@ export function FileList({ onFileSelect }: FileListProps) {
             <Filter className="h-4 w-4 text-gray-500" />
             <select
               value={selectedFileType}
-              onChange={(e) => dispatch(setSelectedFileType(e.target.value))}
+              onChange={(e) => setSelectedFileType(e.target.value)}
               className="px-3 py-2 border border-input rounded-md text-sm"
             >
               {fileTypes.map((type) => (
@@ -137,13 +133,13 @@ export function FileList({ onFileSelect }: FileListProps) {
       </CardHeader>
 
       <CardContent>
-        {error && (
+        {errorMessage && (
           <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md mb-4">
-            {error}
+            {errorMessage}
           </div>
         )}
 
-        {isLoading ? (
+        {isFetching ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-2 text-gray-500">Loading files...</p>
@@ -213,7 +209,7 @@ export function FileList({ onFileSelect }: FileListProps) {
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => handlePageChange(pagination.page - 1)}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={pagination.page <= 1}
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -224,7 +220,7 @@ export function FileList({ onFileSelect }: FileListProps) {
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => handlePageChange(pagination.page + 1)}
+                onClick={() => setPage((p) => p + 1)}
                 disabled={pagination.page >= pagination.totalPages}
               >
                 <ChevronRight className="h-4 w-4" />

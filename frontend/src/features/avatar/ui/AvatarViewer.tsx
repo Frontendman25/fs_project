@@ -21,6 +21,8 @@ interface AvatarViewerProps {
   onClose: () => void
   /** Callback when delete is requested */
   onDelete?: () => void
+  /** When true, backdrop/Escape do not close the viewer (e.g. nested confirm dialog) */
+  suppressClose?: boolean
   /** Additional CSS classes */
   className?: string
 }
@@ -36,6 +38,7 @@ export const AvatarViewer: React.FC<AvatarViewerProps> = ({
   isOpen,
   onClose,
   onDelete,
+  suppressClose = false,
   className
 }) => {
   const handleDownload = React.useCallback(() => {
@@ -50,7 +53,7 @@ export const AvatarViewer: React.FC<AvatarViewerProps> = ({
 
   React.useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && !suppressClose) {
         onClose()
       }
     }
@@ -64,7 +67,7 @@ export const AvatarViewer: React.FC<AvatarViewerProps> = ({
       document.removeEventListener('keydown', handleEscape)
       document.body.style.overflow = 'unset'
     }
-  }, [isOpen, onClose])
+  }, [isOpen, onClose, suppressClose])
 
   if (!isOpen || !avatarUrl) {
     return null
@@ -76,14 +79,19 @@ export const AvatarViewer: React.FC<AvatarViewerProps> = ({
         'fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm',
         className
       )}
-      onClick={onClose}
+      onClick={suppressClose ? undefined : onClose}
     >
       {/* Close button */}
       <Button
         variant="ghost"
         size="icon"
         className="absolute right-4 top-4 z-10 bg-black/50 text-white hover:bg-black/70"
-        onClick={onClose}
+        onClick={(e) => {
+          e.stopPropagation()
+          if (!suppressClose) {
+            onClose()
+          }
+        }}
       >
         <X className="h-6 w-6" />
       </Button>
@@ -94,7 +102,10 @@ export const AvatarViewer: React.FC<AvatarViewerProps> = ({
           variant="ghost"
           size="icon"
           className="bg-black/50 text-white hover:bg-black/70"
-          onClick={handleDownload}
+          onClick={(e) => {
+            e.stopPropagation()
+            handleDownload()
+          }}
           title="Download avatar"
         >
           <Download className="h-5 w-5" />
@@ -105,7 +116,10 @@ export const AvatarViewer: React.FC<AvatarViewerProps> = ({
             variant="ghost"
             size="icon"
             className="bg-black/50 text-white hover:bg-red-600/70"
-            onClick={onDelete}
+            onClick={(e) => {
+              e.stopPropagation()
+              onDelete()
+            }}
             title="Delete avatar"
           >
             <Trash2 className="h-5 w-5" />

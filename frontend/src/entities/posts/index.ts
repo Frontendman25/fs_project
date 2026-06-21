@@ -1,41 +1,23 @@
 /**
- * Posts Entity Barrel Export - Centralized exports for posts entity
- * Follows Feature-Sliced Design architecture
- *
- * Exports all model-related functionality (slice, thunks, selectors)
- * This is the single source of truth for posts model access
+ * Posts Entity Barrel Export
+ * Server state is owned by RTK Query (see ./api/posts.api).
  */
 
-// Redux slice and actions
 export {
-  postsReducer,
-  clearPosts,
-  clearCurrentPost,
-  clearError
-} from './model/postsSlice'
+  postsApi,
+  useGetPostsQuery,
+  useGetPostByIdQuery,
+  useGetPostCountQuery,
+  useCreatePostMutation,
+  useUpdatePostMutation,
+  useDeletePostMutation
+} from './api/posts.api'
+export type { GetPostsArgs } from './api/posts.api'
 
-// Async thunks
-export {
-  createPost,
-  getPosts,
-  getPostById,
-  updatePost,
-  deletePost,
-  getPostCount
-} from './model/postsSlice'
-
-// Selectors
-export {
-  selectPosts,
-  selectCurrentPost,
-  selectPostCount,
-  selectPostsLoading,
-  selectPostsError,
-  selectPostsPagination,
-  selectHasMorePosts,
-  selectNextCursor,
-  selectPostsByUserId,
-  selectPostById,
-  selectPostsWithPagination,
-  selectPostCountByUserId
-} from './model/postsSelectors'
+export type {
+  Post,
+  PostWithUser,
+  CreatePostDTO,
+  UpdatePostDTO,
+  PaginatedPostsResponse
+} from '@/shared/api/posts'

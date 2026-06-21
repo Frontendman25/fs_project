@@ -7,6 +7,10 @@ import { SecurityViolationError } from '@/domain/errors/app.error'
 import { refreshTokenCookieMaxAgeMs } from '@/domain/config/auth.config'
 
 import { extractDeviceContext } from '@/presentation/utils/requestContext'
+import {
+  toUserAuthClientDto,
+  toUserProfileClientDto
+} from '@/presentation/mappers/user-response.mapper'
 
 /**
  * Authentication Controller - Handles HTTP requests for authentication
@@ -160,18 +164,8 @@ export class AuthController {
         data: {
           accessToken: result.accessToken,
           user: userWithAvatar
-            ? {
-                id: userWithAvatar.id,
-                username: userWithAvatar.username,
-                email: userWithAvatar.email,
-                avatarUrl: userWithAvatar.avatarUrl
-              }
-            : {
-                id: result.user.id,
-                username: result.user.username,
-                email: result.user.email,
-                avatarUrl: null
-              }
+            ? toUserAuthClientDto(userWithAvatar, userWithAvatar.avatarFile)
+            : toUserAuthClientDto(result.user, null)
         }
       })
     } catch (error) {
@@ -408,17 +402,30 @@ export class AuthController {
    */
   getProfile = async (req: Request, res: Response): Promise<void> => {
     try {
-      // User information is already attached to request by auth middleware
-      const user = (req as any).user
+      const user = req.user
+
+      if (!user?.id) {
+        res.status(401).json({
+          success: false,
+          message: 'User not authenticated'
+        })
+        return
+      }
+
+      const userWithAvatar = await this.getUserWithAvatar.execute(user.id)
+
+      if (!userWithAvatar) {
+        res.status(404).json({
+          success: false,
+          message: 'User not found'
+        })
+        return
+      }
 
       res.status(200).json({
         success: true,
         message: 'Profile retrieved successfully',
-        data: {
-          id: user.id,
-          username: user.username,
-          email: user.email
-        }
+        data: toUserProfileClientDto(userWithAvatar, userWithAvatar.avatarFile)
       })
     } catch (error) {
       console.error('Get profile error:', error)

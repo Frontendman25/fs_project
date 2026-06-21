@@ -91,9 +91,15 @@ export class FileController {
 
       // Set response headers
       res.setHeader('Content-Type', file.mimeType)
+      const disposition =
+        file.mimeType.startsWith('image/') ||
+        file.mimeType.startsWith('video/') ||
+        file.mimeType === 'application/pdf'
+          ? 'inline'
+          : 'attachment'
       res.setHeader(
         'Content-Disposition',
-        `attachment; filename="${file.originalName}"`
+        `${disposition}; filename="${file.originalName}"`
       )
       res.setHeader('Content-Length', file.size.toString())
       res.setHeader('X-File-ID', file.id)
