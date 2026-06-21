@@ -38,6 +38,8 @@ interface TranscriptProbeData {
   preview: string
   textLength: number
   wasClipped: boolean
+  captionKind?: 'manual' | 'asr'
+  resolvedLang?: string
   attempts: TranscriptAttempt[]
 }
 
@@ -202,6 +204,10 @@ export function TranscriptProbePage() {
             <div className="flex flex-wrap gap-3 text-sm text-gray-600">
               <span>video: {result.videoId}</span>
               <span>lang: {result.lang}</span>
+              {result.resolvedLang && (
+                <span>resolved: {result.resolvedLang}</span>
+              )}
+              {result.captionKind && <span>kind: {result.captionKind}</span>}
               <span>source: {result.source}</span>
               <span>host: {result.host}</span>
               <span>{result.textLength} chars</span>

@@ -69,6 +69,8 @@ export interface TranscriptProbeResult {
   preview: string
   textLength: number
   wasClipped: boolean
+  captionKind?: 'manual' | 'asr'
+  resolvedLang?: string
 }
 
 export function prepareTranscriptPayload(
