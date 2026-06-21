@@ -178,7 +178,7 @@ export async function probeTranscript(
   }
 
   throw new TranscriptProbeError(
-    'All transcript strategies failed on this host',
+    'All transcript strategies failed on this host. If YouTube direct fetch failed, add SUPADATA_API_KEY on Render.',
     'FETCH_FAILED',
     attempts
   )

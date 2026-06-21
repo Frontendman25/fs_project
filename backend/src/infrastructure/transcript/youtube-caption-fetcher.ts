@@ -7,28 +7,28 @@ import {
 } from './caption-track-selector'
 import { TranscriptProbeError } from './youtube-utils'
 
-const INNERTUBE_API_URL =
+const INNERTUBE_PLAYER_URL =
   'https://www.youtube.com/youtubei/v1/player?prettyPrint=false'
 
 const WEB_USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
 
+const ANDROID_USER_AGENT =
+  'com.google.android.youtube/20.10.38 (Linux; U; Android 14) gzip'
+
+const CONSENT_COOKIE = 'CONSENT=YES+cb; PREF=f6=40000000&hl=en'
+
 const INNERTUBE_CLIENTS = [
   {
     clientName: 'ANDROID',
     clientVersion: '20.10.38',
-    userAgent: 'com.google.android.youtube/20.10.38 (Linux; U; Android 14) gzip'
+    userAgent: ANDROID_USER_AGENT
   },
   {
-    clientName: 'WEB',
-    clientVersion: '2.20260301.01.00',
-    userAgent: WEB_USER_AGENT
-  },
-  {
-    clientName: 'MWEB',
-    clientVersion: '2.20260301.01.00',
+    clientName: 'IOS',
+    clientVersion: '20.10.4',
     userAgent:
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15'
+      'com.google.ios.youtube/20.10.4 (iPhone14,3; U; CPU iOS 17_0 like Mac OS X)'
   }
 ] as const
 
@@ -49,6 +49,11 @@ export interface FetchYoutubeCaptionsResult {
   segments: TranscriptSegment[]
   captionKind: CaptionKind
   resolvedLang: string
+}
+
+interface YouTubeSession {
+  tracks: CaptionTrack[]
+  captchaDetected: boolean
 }
 
 function parseCaptionTracksFromPlayerResponse(
@@ -108,6 +113,23 @@ function parseInlineJson(html: string, globalName: string): unknown | null {
   return null
 }
 
+function trackNeedsPoToken(track: CaptionTrack): boolean {
+  return track.baseUrl.includes('exp=xpe')
+}
+
+function isBetterTrack(
+  candidate: CaptionTrack,
+  current: CaptionTrack
+): boolean {
+  const candidateNeedsPo = trackNeedsPoToken(candidate)
+  const currentNeedsPo = trackNeedsPoToken(current)
+
+  if (currentNeedsPo && !candidateNeedsPo) return true
+  if (!currentNeedsPo && candidateNeedsPo) return false
+
+  return false
+}
+
 function mergeCaptionTracks(trackGroups: CaptionTrack[][]): CaptionTrack[] {
   const merged = new Map<string, CaptionTrack>()
 
@@ -115,13 +137,46 @@ function mergeCaptionTracks(trackGroups: CaptionTrack[][]): CaptionTrack[] {
     for (const track of tracks) {
       const key =
         track.vssId ?? `${track.languageCode}:${track.kind ?? 'manual'}`
-      if (!merged.has(key)) {
+      const existing = merged.get(key)
+
+      if (!existing || isBetterTrack(track, existing)) {
         merged.set(key, track)
       }
     }
   }
 
   return [...merged.values()]
+}
+
+async function fetchWatchPageSession(
+  videoId: string,
+  lang: string
+): Promise<YouTubeSession> {
+  const response = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+    headers: {
+      'User-Agent': WEB_USER_AGENT,
+      'Accept-Language': `${lang},en-US;q=0.9,en;q=0.8`,
+      Cookie: CONSENT_COOKIE,
+      Referer: 'https://www.youtube.com/'
+    },
+    cache: 'no-store'
+  })
+
+  if (!response.ok) {
+    throw new TranscriptProbeError(
+      `YouTube watch page HTTP ${response.status}`,
+      'FETCH_FAILED'
+    )
+  }
+
+  const html = await response.text()
+  const captchaDetected = html.includes('class="g-recaptcha"')
+  const playerResponse = parseInlineJson(html, 'ytInitialPlayerResponse')
+
+  return {
+    tracks: parseCaptionTracksFromPlayerResponse(playerResponse),
+    captchaDetected
+  }
 }
 
 async function fetchCaptionTracksViaInnerTube(
@@ -131,11 +186,12 @@ async function fetchCaptionTracksViaInnerTube(
 
   for (const client of INNERTUBE_CLIENTS) {
     try {
-      const response = await fetch(INNERTUBE_API_URL, {
+      const response = await fetch(INNERTUBE_PLAYER_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': client.userAgent
+          'User-Agent': client.userAgent,
+          Cookie: CONSENT_COOKIE
         },
         body: JSON.stringify({
           context: {
@@ -164,48 +220,32 @@ async function fetchCaptionTracksViaInnerTube(
   return mergeCaptionTracks(groups)
 }
 
-async function fetchCaptionTracksViaWebPage(
-  videoId: string,
-  lang: string
-): Promise<CaptionTrack[]> {
-  const response = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
-    headers: {
-      'User-Agent': WEB_USER_AGENT,
-      'Accept-Language': lang
-    },
-    cache: 'no-store'
-  })
-
-  if (!response.ok) {
-    throw new TranscriptProbeError(
-      `YouTube watch page HTTP ${response.status}`,
-      'FETCH_FAILED'
-    )
-  }
-
-  const html = await response.text()
-
-  if (html.includes('class="g-recaptcha"')) {
-    throw new TranscriptProbeError(
-      'YouTube requires captcha from this host',
-      'FETCH_FAILED'
-    )
-  }
-
-  const playerResponse = parseInlineJson(html, 'ytInitialPlayerResponse')
-  return parseCaptionTracksFromPlayerResponse(playerResponse)
-}
-
 async function listCaptionTracks(
   videoId: string,
   lang: string
 ): Promise<CaptionTrack[]> {
-  const innerTubeTracks = await fetchCaptionTracksViaInnerTube(videoId)
-  if (innerTubeTracks.length > 0) {
-    return innerTubeTracks
+  const [watchSession, innerTubeTracks] = await Promise.all([
+    fetchWatchPageSession(videoId, lang),
+    fetchCaptionTracksViaInnerTube(videoId)
+  ])
+
+  if (watchSession.captchaDetected) {
+    throw new TranscriptProbeError(
+      'YouTube blocked this server IP (captcha required). Configure SUPADATA_API_KEY or use a residential proxy.',
+      'HOST_BLOCKED'
+    )
   }
 
-  return fetchCaptionTracksViaWebPage(videoId, lang)
+  const tracks = mergeCaptionTracks([innerTubeTracks, watchSession.tracks])
+
+  if (tracks.length === 0) {
+    throw new TranscriptProbeError(
+      'YouTube returned no caption tracks from this host. Datacenter IPs (Render/Vercel/AWS) are often blocked — configure SUPADATA_API_KEY as fallback.',
+      'HOST_BLOCKED'
+    )
+  }
+
+  return tracks
 }
 
 function decodeEntities(text: string): string {
@@ -294,7 +334,9 @@ async function fetchTranscriptXml(
   const response = await fetch(captionUrl.toString(), {
     headers: {
       'User-Agent': WEB_USER_AGENT,
-      'Accept-Language': lang
+      'Accept-Language': lang,
+      Cookie: CONSENT_COOKIE,
+      Referer: `https://www.youtube.com/watch?v=${videoId}`
     },
     cache: 'no-store'
   })
@@ -306,7 +348,16 @@ async function fetchTranscriptXml(
     )
   }
 
-  return response.text()
+  const body = await response.text()
+
+  if (!body.trim()) {
+    throw new TranscriptProbeError(
+      'YouTube returned an empty caption payload (PoToken required for this track).',
+      'FETCH_FAILED'
+    )
+  }
+
+  return body
 }
 
 export async function fetchYoutubeCaptions(

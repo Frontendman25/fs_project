@@ -16,6 +16,7 @@ export class TranscriptProbeError extends Error {
       | 'INVALID_URL'
       | 'NO_TRANSCRIPT'
       | 'CAPTIONS_DISABLED'
+      | 'HOST_BLOCKED'
       | 'FETCH_FAILED',
     public readonly attempts?: TranscriptAttemptInfo[]
   ) {

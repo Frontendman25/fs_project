@@ -71,12 +71,20 @@ export class TranscriptDebugController {
       })
     } catch (error) {
       if (error instanceof TranscriptProbeError) {
-        res.status(error.code === 'INVALID_URL' ? 400 : 502).json({
-          success: false,
-          error: error.message,
-          code: error.code,
-          ...(error.attempts ? { attempts: error.attempts } : {})
-        })
+        res
+          .status(
+            error.code === 'INVALID_URL'
+              ? 400
+              : error.code === 'HOST_BLOCKED'
+                ? 503
+                : 502
+          )
+          .json({
+            success: false,
+            error: error.message,
+            code: error.code,
+            ...(error.attempts ? { attempts: error.attempts } : {})
+          })
         return
       }
 

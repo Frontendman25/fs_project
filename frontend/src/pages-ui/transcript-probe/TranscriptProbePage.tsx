@@ -180,8 +180,15 @@ export function TranscriptProbePage() {
         </form>
 
         {error && (
-          <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-            {error}
+          <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800 space-y-2">
+            <p>{error}</p>
+            {error.includes('SUPADATA') && (
+              <p className="text-xs">
+                YouTube often blocks datacenter IPs (Render). Add{' '}
+                <code>SUPADATA_API_KEY</code> on Render to enable the fallback
+                provider.
+              </p>
+            )}
           </div>
         )}
 
